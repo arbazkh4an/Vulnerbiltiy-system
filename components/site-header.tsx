@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Shield } from "lucide-react"
 import { motion } from "framer-motion"
+import { ModeToggle } from "@/components/mode-toggle"
 
 export function SiteHeader() {
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -37,6 +38,7 @@ export function SiteHeader() {
                     </a>
                 </nav>
                 <div className="ml-auto w-auto flex items-center space-x-4">
+                    <ModeToggle />
                     <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">
                         Log in
                     </Link>
