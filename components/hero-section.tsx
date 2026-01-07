@@ -7,7 +7,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react"
 
 export function HeroSection() {
     return (
-        <section className="relative overflow-hidden pt-32 pb-24 lg:pt-48 lg:pb-32">
+        <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32">
             {/* Background Blobs */}
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 blob-purple" />
             <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 blob-blue" />
