@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: hsl(240 5.9% 90%);
+  --color-input: hsl(240 5.9% 90%);
+  --color-ring: hsl(260 50% 50%);
+
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 10% 3.9%);
+
+  --color-primary: hsl(260 70% 60%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  --color-secondary: hsl(240 4.8% 95.9%);
+  --color-secondary-foreground: hsl(240 5.9% 10%);
+
+  --color-muted: hsl(240 4.8% 95.9%);
+  --color-muted-foreground: hsl(240 3.8% 46.1%);
+
+  --color-accent: hsl(240 4.8% 95.9%);
+  --color-accent-foreground: hsl(240 5.9% 10%);
+
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(240 10% 3.9%);
+
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 10% 3.9%);
+
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --primary: 260 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+  }
+
+  /* Deep Midnight Theme */
+  .dark {
+    /* Main Background: Very deep violet-black */
+    --color-background: hsl(250 30% 2%);
+    --background: 250 30% 2%;
+
+    --color-foreground: hsl(210 20% 98%);
+    --foreground: 210 20% 98%;
+
+    /* Cards: Slightly lighter, tinted violet */
+    --color-card: hsl(250 25% 4%);
+    --card: 250 25% 4%;
+
+    --color-card-foreground: hsl(210 20% 98%);
+    --card-foreground: 210 20% 98%;
+
+    --color-primary: hsl(260 80% 65%);
+    --primary: 260 80% 65%;
+
+    --color-primary-foreground: hsl(0 0% 100%);
+    --primary-foreground: 0 0% 100%;
+
+    --color-secondary: hsl(250 20% 12%);
+    --secondary: 250 20% 12%;
+
+    --color-secondary-foreground: hsl(0 0% 98%);
+
+    --color-muted: hsl(250 20% 8%);
+    --muted: 250 20% 8%;
+
+    --color-muted-foreground: hsl(240 5% 70%);
+
+    --color-accent: hsl(250 30% 15%);
+    --accent: 250 30% 15%;
+
+    --color-accent-foreground: hsl(0 0% 98%);
+
+    --color-border: hsl(250 20% 10%);
+    --border: 250 20% 10%;
+
+    --color-input: hsl(250 20% 12%);
+    --color-ring: hsl(260 80% 65%);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background-color: rgb(20 20 30 / 0.4);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.6);
+  }
+
+  .blob-purple {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background-color: rgb(139 92 246 / 0.15);
+    border-radius: 9999px;
+    filter: blur(120px);
+    opacity: 0.6;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    animation: blob-bounce 12s infinite ease-in-out;
+  }
+
+  .blob-blue {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    background-color: rgb(59 130 246 / 0.1);
+    border-radius: 9999px;
+    filter: blur(140px);
+    opacity: 0.5;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    animation: blob-bounce 18s infinite ease-in-out reverse;
+  }
+}
+
+@keyframes blob-bounce {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(40px, -40px);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(at 0% 0%, rgba(20, 10, 40, 0.5) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(10, 20, 50, 0.5) 0px, transparent 50%);
+    color: var(--foreground);
+  }
+}
