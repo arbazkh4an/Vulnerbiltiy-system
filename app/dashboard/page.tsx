@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useAuth } from "@/components/auth-provider"
+import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,7 +37,8 @@ interface Scan {
 }
 
 export default function DashboardPage() {
-  const { user, loading: authLoading, logout } = useAuth()
+  const { user, isLoaded, isSignedIn } = useUser()
+  const { signOut } = useClerk()
   const router = useRouter()
   const [targetUrl, setTargetUrl] = useState("")
   const [scanning, setScanning] = useState(false)
@@ -47,16 +48,18 @@ export default function DashboardPage() {
   const [loadingScans, setLoadingScans] = useState(true)
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login")
+    if (isLoaded && !isSignedIn) {
+      router.push("/")
     }
-  }, [user, authLoading, router])
+  }, [isLoaded, isSignedIn, router])
 
   useEffect(() => {
-    if (user) {
+    if (isSignedIn && user) {
       fetchScans()
     }
-  }, [user])
+  }, [isSignedIn, user])
+
+  // ... fetchScans and handleStartScan ...
 
   async function fetchScans() {
     try {
@@ -113,7 +116,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (authLoading || !user) {
+  if (!isLoaded || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
@@ -158,8 +161,8 @@ export default function DashboardPage() {
               <span className="text-xl font-bold text-slate-100">VulnScan AI</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-400">Welcome, {user.name}</span>
-              <Button variant="ghost" size="sm" onClick={logout} className="text-slate-300 hover:text-slate-100">
+              <span className="text-sm text-slate-400">Welcome, {user.fullName || user.primaryEmailAddress?.emailAddress}</span>
+              <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-slate-300 hover:text-slate-100">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>

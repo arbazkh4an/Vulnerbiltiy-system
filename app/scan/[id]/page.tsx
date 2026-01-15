@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAuth } from "@/components/auth-provider"
+import { useUser } from "@clerk/nextjs"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,7 +57,7 @@ interface Scan {
 }
 
 export default function ScanResultsPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, isLoaded, isSignedIn } = useUser()
   const router = useRouter()
   const params = useParams()
   const scanId = params.id as string
@@ -68,10 +68,10 @@ export default function ScanResultsPage() {
   const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login")
+    if (isLoaded && !isSignedIn) {
+      router.push("/")
     }
-  }, [user, authLoading, router])
+  }, [isLoaded, isSignedIn, router])
 
   useEffect(() => {
     if (user && scanId) {
@@ -137,7 +137,7 @@ export default function ScanResultsPage() {
     return <Badge className={getSeverityColor(severity)}>{severity.toUpperCase()}</Badge>
   }
 
-  if (authLoading || loading || !user) {
+  if (!isLoaded || loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
