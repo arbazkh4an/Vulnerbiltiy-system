@@ -53,3 +53,6 @@ backend/ai_model/saved_models/*.pkl
 *.db
 *.sqlite
 *.sqlite3
+
+# clerk configuration (can include secrets)
+/.clerk/
