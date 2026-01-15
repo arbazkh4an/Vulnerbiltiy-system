@@ -6,7 +6,11 @@ if (!databaseUrl) {
   console.warn("Warning: DATABASE_URL environment variable is not set. Database operations will fail.");
 }
 
-export const sql = neon(databaseUrl || "postgresql://placeholder:placeholder@localhost:5432/placeholder");
+export const sql = databaseUrl
+  ? neon(databaseUrl)
+  : ((...args: any[]) => {
+    throw new Error("DATABASE_URL environment variable is not set");
+  }) as any;
 
 // Helper function to get user by email
 export async function getUserByEmail(email: string) {
