@@ -61,13 +61,13 @@ export async function POST(request: NextRequest) {
       }
 
       const backendData = await backendResponse.json()
-      
-      return NextResponse.json({
-        success: true,
-        scanId,
-        message: "Scan started successfully",
+
+    return NextResponse.json({
+      success: true,
+      scanId,
+      message: "Scan started successfully",
         ...backendData,
-      })
+    })
     } catch (error) {
       console.error("[v0] Error calling backend:", error)
       
