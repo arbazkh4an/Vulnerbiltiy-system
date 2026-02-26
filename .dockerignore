@@ -1,0 +1,12 @@
+.git
+.gitignore
+*.md
+node_modules
+.next
+.env
+.env.local
+.vscode
+.idea
+dist
+build
+*.log
