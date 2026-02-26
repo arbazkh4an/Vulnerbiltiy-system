@@ -4,8 +4,12 @@ Pytest tests for the database connection layer
 """
 
 import json
+import os
 import pytest
 import pytest_asyncio
+
+# Force test mode for SQLite
+os.environ["DB_TEST_MODE"] = "true"
 
 # Import the database module
 import db

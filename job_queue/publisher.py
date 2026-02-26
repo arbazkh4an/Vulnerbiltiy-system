@@ -1,5 +1,5 @@
-from queue.celery_app import celery_app
-from queue.job_models import ScanJob
+from job_queue.celery_app import celery_app
+from job_queue.job_models import ScanJob
 
 
 @celery_app.task(bind=True, name="scanners.scan")

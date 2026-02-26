@@ -1,12 +1,16 @@
 import json
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from queue.celery_app import celery_app
-from queue.job_models import ScanJob
-from queue import publisher
-from queue import progress
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from job_queue.celery_app import celery_app
+from job_queue.job_models import ScanJob
+from job_queue import publisher
+from job_queue import progress
 
 
 class TestCeleryApp:
@@ -46,7 +50,7 @@ class TestPublisher:
         call_args = mock_apply.call_args
         assert call_args.kwargs["queue"] == "scan_queue"
 
-    @patch("queue.publisher.celery_app")
+    @patch("job_queue.publisher.celery_app")
     def test_get_job_status_returns_correct_shape(self, mock_celery):
         mock_task = MagicMock()
         mock_task.state = "SUCCESS"
@@ -64,7 +68,7 @@ class TestPublisher:
 
 
 class TestProgress:
-    @patch("queue.progress._get_redis_client")
+    @patch("job_queue.progress._get_redis_client")
     def test_publish_progress_puts_message_on_correct_channel(self, mock_get_client):
         mock_client = MagicMock()
         mock_get_client.return_value = mock_client
@@ -79,7 +83,7 @@ class TestProgress:
         assert payload["percent"] == 50
         assert payload["message"] == "Checking endpoints"
 
-    @patch("queue.progress._get_redis_client")
+    @patch("job_queue.progress._get_redis_client")
     def test_subscribe_progress_receives_published_messages(self, mock_get_client):
         mock_client = MagicMock()
         mock_pubsub = MagicMock()
