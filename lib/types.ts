@@ -12,10 +12,10 @@ export interface User {
 }
 
 export interface Scan {
-  id: number
-  user_id: string
+  id: string
+  user_id?: string
   target_url: string
-  scan_status: "pending" | "running" | "completed" | "failed"
+  scan_status: "queued" | "pending" | "running" | "completed" | "failed"
   started_at: string
   completed_at: string | null
   total_vulnerabilities: number
@@ -23,12 +23,12 @@ export interface Scan {
   high_count: number
   medium_count: number
   low_count: number
-  created_at: string
+  created_at?: string
   updated_at?: string
 }
 
 export interface CVE {
-  id?: number
+  id?: string
   cve_id: string
   cve_description: string
   cvss_v3_score: number
@@ -37,20 +37,20 @@ export interface CVE {
 }
 
 export interface Vulnerability {
-  id: number
-  scan_id: number
+  id: string
+  scan_id?: string
   vulnerability_name: string
   vulnerability_type: string
-  description: string
-  cwe_id: string
-  cwe_name: string
+  description: string | null
+  cwe_id: string | null
+  cwe_name: string | null
   cvss_score: number
   severity: "critical" | "high" | "medium" | "low"
-  ai_predicted_severity: "critical" | "high" | "medium" | "low"
-  ai_confidence: number
-  remediation: string
-  affected_url: string
-  evidence: string
+  ai_predicted_severity?: string | null
+  ai_confidence?: number
+  remediation: string | null
+  affected_url: string | null
+  evidence?: string | null
   created_at?: string
   cves?: CVE[]
 }
@@ -76,7 +76,7 @@ export interface AuthResponse {
 
 export interface ScanStartResponse {
   success: boolean
-  scanId: number
+  scanId: string
   message?: string
   error?: string
 }

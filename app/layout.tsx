@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
 }
 
-import { ClerkProvider } from "@clerk/nextjs"
+// import { ClerkProvider } from "@clerk/nextjs"
 
 export default function RootLayout({
   children,
@@ -56,22 +56,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`font-sans antialiased`}>
-          <ErrorBoundary>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Analytics />
-            </ThemeProvider>
-          </ErrorBoundary>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans antialiased`}>
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Analytics />
+          </ThemeProvider>
+        </ErrorBoundary>
+      </body>
+    </html>
   )
 }

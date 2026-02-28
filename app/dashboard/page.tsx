@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState, useTransition, useMemo } from "react"
-import { useUser, useClerk } from "@clerk/nextjs"
+// import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -72,8 +72,10 @@ type FilterStatus = "all" | "completed" | "running" | "failed" | "pending"
 const ITEMS_PER_PAGE = 10
 
 export default function DashboardPage() {
-  const { user, isLoaded, isSignedIn } = useUser()
-  const { signOut } = useClerk()
+  const user = { fullName: "Local User", primaryEmailAddress: { emailAddress: "local@example.com" } }
+  const isLoaded = true
+  const isSignedIn = true
+  const signOut = () => router.push("/")
   const router = useRouter()
   const [targetUrl, setTargetUrl] = useState("")
   const [scanning, setScanning] = useState(false)
@@ -82,7 +84,7 @@ export default function DashboardPage() {
   const [scans, setScans] = useState<Scan[]>([])
   const [loadingScans, setLoadingScans] = useState(true)
   const [isPending, startTransition] = useTransition()
-  const [navigatingScanId, setNavigatingScanId] = useState<number | null>(null)
+  const [navigatingScanId, setNavigatingScanId] = useState<string | null>(null)
 
   // Sorting state
   const [sortField, setSortField] = useState<SortField>("started_at")
@@ -161,9 +163,7 @@ export default function DashboardPage() {
   }, [processedScans, currentPage])
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push("/")
-    }
+    // Auth disabled for local
   }, [isLoaded, isSignedIn, router])
 
   useEffect(() => {
@@ -217,7 +217,7 @@ export default function DashboardPage() {
     setScanning(true)
 
     const optimisticScan: Scan = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`,
       target_url: targetUrl,
       scan_status: "pending",
       started_at: new Date().toISOString(),
@@ -295,7 +295,7 @@ export default function DashboardPage() {
     }
   }
 
-const getStatusText = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case "completed":
         return "Completed"
@@ -443,7 +443,7 @@ const getStatusText = (status: string) => {
           </CardContent>
         </Card>
 
-{/* Stats Overview */}
+        {/* Stats Overview */}
         <div className="grid md:grid-cols-4 gap-4">
           {/* Total Scans Card */}
           <Card className="border-slate-800 bg-slate-900/60 backdrop-blur hover:bg-slate-900/80 transition-colors">
@@ -514,7 +514,7 @@ const getStatusText = (status: string) => {
           </Card>
         </div>
 
-{/* Recent Scans */}
+        {/* Recent Scans */}
         <Card className="border-slate-800 bg-slate-900/60 backdrop-blur shadow-lg shadow-black/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div className="space-y-1">
@@ -573,12 +573,12 @@ const getStatusText = (status: string) => {
                   {filterStatus !== "all" ? "No scans found" : "No scans yet"}
                 </h3>
                 <p className="text-slate-400 text-center max-w-md mb-6">
-                  {filterStatus !== "all" 
+                  {filterStatus !== "all"
                     ? `You don't have any ${filterStatus} scans. Try changing the filter or start a new scan.`
                     : "Start your first vulnerability scan to discover potential security issues in your web applications."}
                 </p>
                 {filterStatus === "all" && (
-                  <Button 
+                  <Button
                     onClick={() => document.getElementById('url-input')?.focus()}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
@@ -587,7 +587,7 @@ const getStatusText = (status: string) => {
                   </Button>
                 )}
                 {filterStatus !== "all" && (
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => setFilterStatus("all")}
                     className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100"
@@ -601,7 +601,7 @@ const getStatusText = (status: string) => {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                      <TableHead 
+                      <TableHead
                         className="text-slate-300 cursor-pointer hover:text-emerald-400"
                         onClick={() => handleSort("started_at")}
                       >
@@ -609,7 +609,7 @@ const getStatusText = (status: string) => {
                           Date {getSortIcon("started_at")}
                         </div>
                       </TableHead>
-                      <TableHead 
+                      <TableHead
                         className="text-slate-300 cursor-pointer hover:text-emerald-400"
                         onClick={() => handleSort("scan_status")}
                       >
@@ -618,7 +618,7 @@ const getStatusText = (status: string) => {
                         </div>
                       </TableHead>
                       <TableHead className="text-slate-300">Target URL</TableHead>
-                      <TableHead 
+                      <TableHead
                         className="text-slate-300 cursor-pointer hover:text-emerald-400 text-right"
                         onClick={() => handleSort("critical_count")}
                       >
@@ -626,7 +626,7 @@ const getStatusText = (status: string) => {
                           Critical {getSortIcon("critical_count")}
                         </div>
                       </TableHead>
-                      <TableHead 
+                      <TableHead
                         className="text-slate-300 cursor-pointer hover:text-emerald-400 text-right"
                         onClick={() => handleSort("high_count")}
                       >
@@ -634,7 +634,7 @@ const getStatusText = (status: string) => {
                           High {getSortIcon("high_count")}
                         </div>
                       </TableHead>
-                      <TableHead 
+                      <TableHead
                         className="text-slate-300 cursor-pointer hover:text-emerald-400 text-right"
                         onClick={() => handleSort("total_vulnerabilities")}
                       >
@@ -644,60 +644,60 @@ const getStatusText = (status: string) => {
                       </TableHead>
                     </TableRow>
                   </TableHeader>
-                    <TableBody>
-                      {paginatedScans.map((scan) => (
-                        <TableRow 
-                          key={scan.id}
-                          onClick={() => {
-                            setNavigatingScanId(scan.id)
-                            startTransition(() => {
-                              router.push(`/scan/${scan.id}`)
-                            })
-                          }}
-                          className="border-slate-800 hover:bg-slate-800/60 cursor-pointer transition-colors group"
-                        >
-                          <TableCell className="text-slate-300 font-mono text-sm">
-                            {new Date(scan.started_at).toLocaleString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {navigatingScanId === scan.id ? (
-                                <Loader2 className="h-4 w-4 text-emerald-400 animate-spin" />
-                              ) : (
-                                getStatusIcon(scan.scan_status)
-                              )}
-                              <span className="text-slate-300 group-hover:text-slate-100 transition-colors">
-                                {navigatingScanId === scan.id ? "Loading..." : getStatusText(scan.scan_status)}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-slate-100 font-medium max-w-[300px] truncate">
-                            {scan.target_url}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {scan.critical_count > 0 ? (
-                              <span className="px-2.5 py-1 bg-red-500/15 border border-red-500/30 rounded-md text-xs font-medium text-red-400">
-                                {scan.critical_count}
-                              </span>
+                  <TableBody>
+                    {paginatedScans.map((scan) => (
+                      <TableRow
+                        key={scan.id}
+                        onClick={() => {
+                          setNavigatingScanId(scan.id)
+                          startTransition(() => {
+                            router.push(`/scan/${scan.id}`)
+                          })
+                        }}
+                        className="border-slate-800 hover:bg-slate-800/60 cursor-pointer transition-colors group"
+                      >
+                        <TableCell className="text-slate-300 font-mono text-sm">
+                          {new Date(scan.started_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {navigatingScanId === scan.id ? (
+                              <Loader2 className="h-4 w-4 text-emerald-400 animate-spin" />
                             ) : (
-                              <span className="text-slate-500">0</span>
+                              getStatusIcon(scan.scan_status)
                             )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {scan.high_count > 0 ? (
-                              <span className="px-2.5 py-1 bg-orange-500/15 border border-orange-500/30 rounded-md text-xs font-medium text-orange-400">
-                                {scan.high_count}
-                              </span>
-                            ) : (
-                              <span className="text-slate-500">0</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right text-slate-300 font-medium">
-                            {scan.total_vulnerabilities}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                            <span className="text-slate-300 group-hover:text-slate-100 transition-colors">
+                              {navigatingScanId === scan.id ? "Loading..." : getStatusText(scan.scan_status)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-slate-100 font-medium max-w-[300px] truncate">
+                          {scan.target_url}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {scan.critical_count > 0 ? (
+                            <span className="px-2.5 py-1 bg-red-500/15 border border-red-500/30 rounded-md text-xs font-medium text-red-400">
+                              {scan.critical_count}
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">0</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {scan.high_count > 0 ? (
+                            <span className="px-2.5 py-1 bg-orange-500/15 border border-orange-500/30 rounded-md text-xs font-medium text-orange-400">
+                              {scan.high_count}
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">0</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right text-slate-300 font-medium">
+                          {scan.total_vulnerabilities}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
                 </Table>
 
                 {/* Pagination */}
@@ -724,8 +724,8 @@ const getStatusText = (status: string) => {
                           variant={page === currentPage ? "default" : "ghost"}
                           size="sm"
                           onClick={() => setCurrentPage(page)}
-                          className={page === currentPage 
-                            ? "bg-emerald-600 hover:bg-emerald-700" 
+                          className={page === currentPage
+                            ? "bg-emerald-600 hover:bg-emerald-700"
                             : "text-slate-300 hover:bg-slate-800 hover:text-slate-100 min-w-[32px]"}
                         >
                           {page}

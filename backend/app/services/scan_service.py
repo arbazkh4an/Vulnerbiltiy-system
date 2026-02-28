@@ -124,7 +124,7 @@ async def process_scan(pool: Pool, scan_id: str, url: str) -> None:
     )
 
     # Mark complete
-    await repo.update_status(pool, scan_id, "complete", progress=100)
+    await repo.update_status(pool, scan_id, "completed", progress=100)
     logger.info(
         "scan_completed",
         scan_id=scan_id,

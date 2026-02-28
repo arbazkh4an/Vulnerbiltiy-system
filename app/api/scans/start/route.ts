@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
+// import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { checkRateLimit, getClientIp, apiRateLimits } from "@/lib/rate-limit"
 import { z } from "zod"
@@ -87,11 +87,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const user = await getSession()
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  // const { userId } = await auth()
+  const userId = "local-user"
 
   let body: unknown
   try {
@@ -123,7 +120,7 @@ export async function POST(request: NextRequest) {
     // Insert scan as 'queued' — the background worker will pick it up
     const result = await sql`
       INSERT INTO scans (user_id, target_url, scan_status, progress)
-      VALUES (${user.id}, ${url}, 'queued', 0)
+      VALUES (${userId}, ${url}, 'queued', 0)
       RETURNING id
     `
 
@@ -136,6 +133,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("[v0] Error starting scan:", error)
-    return NextResponse.json({ error: "Failed to start scan" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to start scan", details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }

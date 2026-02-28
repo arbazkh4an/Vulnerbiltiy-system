@@ -3,8 +3,11 @@
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+// import { useAuth } from "@clerk/nextjs"
+import Link from "next/link"
 
 export function PricingSection() {
+    const isSignedIn = true // Clerk Disabled
     const plans = [
         {
             name: "Starter",
@@ -51,8 +54,8 @@ export function PricingSection() {
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                             viewport={{ once: true }}
                             className={`relative flex flex-col p-8 rounded-2xl border ${plan.popular
-                                    ? "bg-white/5 border-primary/50 shadow-2xl shadow-primary/10 scale-105 z-10"
-                                    : "bg-black/20 border-white/10 hover:bg-white/5 transition-colors"
+                                ? "bg-white/5 border-primary/50 shadow-2xl shadow-primary/10 scale-105 z-10"
+                                : "bg-black/20 border-white/10 hover:bg-white/5 transition-colors"
                                 }`}
                         >
                             {plan.popular && (
@@ -77,8 +80,12 @@ export function PricingSection() {
                                 ))}
                             </div>
 
-                            <Button className={`w-full ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-white/10 hover:bg-white/20"} rounded-lg h-10`}>
-                                {plan.name === "Enterprise" ? "Contact Sales" : "Get Started"}
+                            <Button asChild className={`w-full ${plan.popular ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" : "bg-white/10 hover:bg-white/20"} rounded-lg h-10 transition-all hover:scale-[1.02] active:scale-[0.98]`}>
+                                {plan.name === "Enterprise" ? (
+                                    <Link href="/contact">Contact Sales</Link>
+                                ) : (
+                                    <Link href={isSignedIn ? "/dashboard" : "/register"}>Get Started</Link>
+                                )}
                             </Button>
                         </motion.div>
                     ))}

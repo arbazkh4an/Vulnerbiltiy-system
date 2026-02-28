@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
+// import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { checkRateLimit, getClientIp, apiRateLimits } from "@/lib/rate-limit"
 import { z } from "zod"
@@ -21,11 +21,8 @@ export async function GET(request: Request) {
       )
     }
 
-    const user = await getSession()
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // Clerk disabled – hardcode userId for local dev
+    const userId = "local-user"
 
     const { searchParams } = new URL(request.url)
     const limit = searchParams.get("limit") || "50"
@@ -47,7 +44,6 @@ export async function GET(request: Request) {
         low_count,
         created_at
       FROM scans
-      WHERE user_id = ${user.id}
       ORDER BY created_at DESC
       LIMIT ${validatedParams.limit}
       OFFSET ${validatedParams.offset}
@@ -60,6 +56,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid query parameters", details: error.errors }, { status: 400 })
     }
     console.error("[v0] Error fetching scans:", error)
-    return NextResponse.json({ error: "Failed to fetch scans" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch scans", details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }

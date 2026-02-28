@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef, useTransition } from "react"
-import { useUser } from "@clerk/nextjs"
+// import { useUser } from "@clerk/nextjs"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -108,7 +108,9 @@ function getStatusBadge({ status }: { status: string }) {
 }
 
 export default function ScanResultsPage() {
-  const { user, isLoaded, isSignedIn } = useUser()
+  const user = { fullName: "Local User" }
+  const isLoaded = true
+  const isSignedIn = true
   const router = useRouter()
   const params = useParams()
   const scanId = params.id as string
@@ -138,14 +140,12 @@ export default function ScanResultsPage() {
   const [expandedEvidence, setExpandedEvidence] = useState<Set<number>>(new Set())
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push("/")
-    }
+    // Auth disabled for local
   }, [isLoaded, isSignedIn, router])
 
   useEffect(() => {
     const controller = new AbortController()
-    
+
     async function fetchScanResults() {
       setLoading(true)
       setError(null)
@@ -195,7 +195,7 @@ export default function ScanResultsPage() {
       try {
         const response = await fetch(`/api/scans/${scanId}`)
         if (isCancelled) return
-        
+
         if (response.ok) {
           const data = await response.json()
           // Only update state if this is the most recent polling request
@@ -215,7 +215,7 @@ export default function ScanResultsPage() {
     }
   }, [scan?.scan_status, scanId])
 
-async function handleDownloadPdf() {
+  async function handleDownloadPdf() {
     setDownloadingPdf(true)
     setPdfError(null)
     try {
@@ -286,8 +286,8 @@ async function handleDownloadPdf() {
       switch (sortBy) {
         case "severity":
           const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-          comparison = severityOrder[b.severity.toLowerCase() as keyof typeof severityOrder] - 
-                       severityOrder[a.severity.toLowerCase() as keyof typeof severityOrder]
+          comparison = severityOrder[b.severity.toLowerCase() as keyof typeof severityOrder] -
+            severityOrder[a.severity.toLowerCase() as keyof typeof severityOrder]
           break
         case "cvss":
           comparison = b.cvss_score - a.cvss_score
@@ -323,8 +323,8 @@ async function handleDownloadPdf() {
             <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
             <p className="text-slate-300 mb-4">{error}</p>
             <div className="flex gap-4 justify-center">
-              <Button 
-                onClick={() => window.location.reload()} 
+              <Button
+                onClick={() => window.location.reload()}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
                 Retry
@@ -367,8 +367,8 @@ async function handleDownloadPdf() {
               <Shield className="h-8 w-8 text-emerald-400" />
               <span className="text-xl font-bold text-slate-100">VulnScan AI</span>
             </Link>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-slate-300 hover:text-slate-100"
               onClick={() => {
                 startTransition(() => {
@@ -390,7 +390,7 @@ async function handleDownloadPdf() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Summary Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-slate-100 mb-4 flex items-center gap-2">
@@ -469,18 +469,18 @@ async function handleDownloadPdf() {
                 <div>
                   <p className="font-semibold text-slate-100 capitalize">{scan.scan_status === 'completed' ? 'Scan Complete' : scan.scan_status === 'running' ? 'Scan In Progress' : 'Scan Pending'}</p>
                   <p className="text-sm text-slate-400">
-                    {scan.scan_status === 'completed' 
+                    {scan.scan_status === 'completed'
                       ? `Completed on ${new Date(scan.completed_at || scan.started_at).toLocaleString()}`
                       : scan.scan_status === 'running'
-                      ? `Started on ${new Date(scan.started_at).toLocaleString()}`
-                      : `Started on ${new Date(scan.started_at).toLocaleString()}`
+                        ? `Started on ${new Date(scan.started_at).toLocaleString()}`
+                        : `Started on ${new Date(scan.started_at).toLocaleString()}`
                     }
                   </p>
                 </div>
               </div>
               {getStatusBadge({ status: scan.scan_status })}
             </div>
-            
+
             {/* Progress Timeline */}
             <div className="mt-6 relative">
               <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-700"></div>
@@ -510,8 +510,8 @@ async function handleDownloadPdf() {
                     <div className="flex-1">
                       <p className="font-medium text-slate-100">Scanning Target</p>
                       <p className="text-sm text-slate-400">
-                        {scan.scan_status === 'completed' 
-                          ? 'Analysis completed' 
+                        {scan.scan_status === 'completed'
+                          ? 'Analysis completed'
                           : 'Analyzing endpoints and checking for vulnerabilities...'
                         }
                       </p>
@@ -568,7 +568,7 @@ async function handleDownloadPdf() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-slate-100 mb-2 flex items-center gap-2">
-                  Scan Results 
+                  Scan Results
                   {getStatusBadge({ status: scan.scan_status })}
                 </CardTitle>
                 {/* 
@@ -584,25 +584,25 @@ async function handleDownloadPdf() {
                   </span>
                 </div>
               </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={handleShare}
-                  variant="ghost"
-                  className="text-slate-300 hover:text-slate-100"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 mr-2 text-emerald-400" />
-                  ) : (
-                    <Copy className="h-4 w-4 mr-2" />
-                  )}
-                  {copied ? "Copied!" : "Share"}
-                </Button>
-                <Button
-                  onClick={handleDownloadPdf}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  disabled={downloadingPdf || scan.scan_status !== "completed"}
-                >
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleShare}
+                variant="ghost"
+                className="text-slate-300 hover:text-slate-100"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 mr-2 text-emerald-400" />
+                ) : (
+                  <Copy className="h-4 w-4 mr-2" />
+                )}
+                {copied ? "Copied!" : "Share"}
+              </Button>
+              <Button
+                onClick={handleDownloadPdf}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                disabled={downloadingPdf || scan.scan_status !== "completed"}
+              >
                 {downloadingPdf ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -673,7 +673,7 @@ async function handleDownloadPdf() {
           </Card>
         </div>
 
-{/* Vulnerabilities Table */}
+        {/* Vulnerabilities Table */}
         <Card className="border-slate-800 bg-slate-900/50 backdrop-blur">
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -790,7 +790,7 @@ async function handleDownloadPdf() {
               )}
             </div>
           </CardHeader>
-<CardContent>
+          <CardContent>
             {vulnerabilities.length === 0 ? (
               <div className="text-center py-12">
                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-4" />
@@ -820,152 +820,150 @@ async function handleDownloadPdf() {
                 </p>
                 <div className="space-y-4">
                   {filteredAndSortedVulnerabilities.map((vuln) => (
-                  <div 
-                    key={vuln.id} 
-                    className={`p-5 bg-slate-800/40 border rounded-xl space-y-4 transition-all duration-200 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-slate-900/50 ${
-                      vuln.severity === 'critical' 
-                        ? 'border-red-500/30 hover:border-red-500/50' 
-                        : vuln.severity === 'high'
-                        ? 'border-orange-500/30 hover:border-orange-500/50'
-                        : vuln.severity === 'medium'
-                        ? 'border-amber-500/30 hover:border-amber-500/50'
-                        : 'border-blue-500/30 hover:border-blue-500/50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h3 className="text-lg font-bold text-slate-100">{vuln.vulnerability_name}</h3>
-                          {getSeverityBadge({ severity: vuln.severity })}
+                    <div
+                      key={vuln.id}
+                      className={`p-5 bg-slate-800/40 border rounded-xl space-y-4 transition-all duration-200 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-slate-900/50 ${vuln.severity === 'critical'
+                          ? 'border-red-500/30 hover:border-red-500/50'
+                          : vuln.severity === 'high'
+                            ? 'border-orange-500/30 hover:border-orange-500/50'
+                            : vuln.severity === 'medium'
+                              ? 'border-amber-500/30 hover:border-amber-500/50'
+                              : 'border-blue-500/30 hover:border-blue-500/50'
+                        }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-lg font-bold text-slate-100">{vuln.vulnerability_name}</h3>
+                            {getSeverityBadge({ severity: vuln.severity })}
+                          </div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              {vuln.vulnerability_type}
+                            </span>
+                          </div>
+                          <p className="text-slate-300 leading-relaxed">{vuln.description}</p>
                         </div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            {vuln.vulnerability_type}
-                          </span>
+                        <div className="hidden md:flex flex-col items-center justify-center ml-4 p-3 bg-slate-900/60 rounded-lg border border-slate-700/50">
+                          <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">CVSS</span>
+                          <span className={`text-2xl font-bold ${vuln.cvss_score >= 9 ? 'text-red-400' :
+                              vuln.cvss_score >= 7 ? 'text-orange-400' :
+                                vuln.cvss_score >= 4 ? 'text-amber-400' :
+                                  'text-blue-400'
+                            }`}>{vuln.cvss_score}</span>
+                          <span className="text-xs text-slate-500">/ 10</span>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{vuln.description}</p>
                       </div>
-                      <div className="hidden md:flex flex-col items-center justify-center ml-4 p-3 bg-slate-900/60 rounded-lg border border-slate-700/50">
-                        <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">CVSS</span>
-                        <span className={`text-2xl font-bold ${
-                          vuln.cvss_score >= 9 ? 'text-red-400' :
-                          vuln.cvss_score >= 7 ? 'text-orange-400' :
-                          vuln.cvss_score >= 4 ? 'text-amber-400' :
-                          'text-blue-400'
-                        }`}>{vuln.cvss_score}</span>
-                        <span className="text-xs text-slate-500">/ 10</span>
-                      </div>
-                    </div>
 
-                    <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-slate-700/50">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
+                      <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-slate-700/50">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs font-medium text-slate-400 mb-1">CWE Classification</p>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="border-slate-600 text-slate-300 bg-slate-800/50">
+                                  {vuln.cwe_id}
+                                </Badge>
+                                <span className="text-sm text-slate-400">{vuln.cwe_name}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs font-medium text-slate-400 mb-1">AI Confidence</p>
+                              <span className="text-sm font-semibold text-emerald-400">{vuln.ai_confidence.toFixed(0)}%</span>
+                            </div>
+                          </div>
+
                           <div>
-                            <p className="text-xs font-medium text-slate-400 mb-1">CWE Classification</p>
+                            <p className="text-xs font-medium text-slate-400 mb-1">AI Prediction</p>
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-slate-600 text-slate-300 bg-slate-800/50">
-                                {vuln.cwe_id}
-                              </Badge>
-                              <span className="text-sm text-slate-400">{vuln.cwe_name}</span>
+                              {getSeverityBadge({ severity: vuln.ai_predicted_severity })}
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs font-medium text-slate-400 mb-1">AI Confidence</p>
-                            <span className="text-sm font-semibold text-emerald-400">{vuln.ai_confidence.toFixed(0)}%</span>
-                          </div>
+
+                          {vuln.cves && vuln.cves.length > 0 && (
+                            <div>
+                              <p className="text-xs font-medium text-slate-400 mb-1">Associated CVEs</p>
+                              <div className="flex flex-wrap gap-2">
+                                {vuln.cves.map((cve) => (
+                                  <button
+                                    key={cve.cve_id}
+                                    onClick={() => handleCVEClick(cve)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 border border-slate-600 rounded text-xs text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors cursor-pointer"
+                                  >
+                                    {cve.cve_id}
+                                    <ExternalLink className="h-3 w-3" />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
-                        <div>
-                          <p className="text-xs font-medium text-slate-400 mb-1">AI Prediction</p>
-                          <div className="flex items-center gap-2">
-                            {getSeverityBadge({ severity: vuln.ai_predicted_severity })}
-                          </div>
-                        </div>
-
-                        {vuln.cves && vuln.cves.length > 0 && (
+                        <div className="space-y-3">
                           <div>
-                            <p className="text-xs font-medium text-slate-400 mb-1">Associated CVEs</p>
-                            <div className="flex flex-wrap gap-2">
-                              {vuln.cves.map((cve) => (
-                                <button
-                                  key={cve.cve_id}
-                                  onClick={() => handleCVEClick(cve)}
-                                  className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 border border-slate-600 rounded text-xs text-slate-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors cursor-pointer"
-                                >
-                                  {cve.cve_id}
-                                  <ExternalLink className="h-3 w-3" />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-xs font-medium text-slate-400 mb-1">Affected Location</p>
-                          {/* 
+                            <p className="text-xs font-medium text-slate-400 mb-1">Affected Location</p>
+                            {/* 
                             Security Note: affected_url is rendered via React's default escaping.
                             This URL is extracted from scan results and represents the vulnerable endpoint.
                             React automatically escapes content rendered in JSX to prevent XSS attacks.
                             The URL is displayed in a monospace font for readability but not executed.
                           */}
-                          <p className="text-sm text-slate-300 break-all font-mono bg-slate-900/50 p-2 rounded border border-slate-700/50">
-                            {vuln.affected_url}
-                          </p>
-                        </div>
+                            <p className="text-sm text-slate-300 break-all font-mono bg-slate-900/50 p-2 rounded border border-slate-700/50">
+                              {vuln.affected_url}
+                            </p>
+                          </div>
 
-                        <Collapsible
-                          open={expandedEvidence.has(vuln.id)}
-                          onOpenChange={() => toggleEvidence(vuln.id)}
-                        >
-                          <CollapsibleTrigger asChild>
-                            <button className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors w-full">
-                              {expandedEvidence.has(vuln.id) ? (
-                                <ChevronUp className="h-4 w-4" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4" />
-                              )}
-                              Evidence
-                            </button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-2">
-                            {/* 
+                          <Collapsible
+                            open={expandedEvidence.has(vuln.id)}
+                            onOpenChange={() => toggleEvidence(vuln.id)}
+                          >
+                            <CollapsibleTrigger asChild>
+                              <button className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors w-full">
+                                {expandedEvidence.has(vuln.id) ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                                Evidence
+                              </button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="mt-2">
+                              {/* 
                               Security Note: evidence is rendered via React's default escaping.
                               This field contains scan evidence/output from vulnerability detection.
                               React automatically escapes content rendered in JSX to prevent XSS attacks.
                               The evidence is displayed in a monospace font for readability but not executed.
                             */}
-                            <p className="text-sm text-slate-300 font-mono bg-slate-900/50 p-2 rounded border border-slate-700/50 break-all">
-                              {vuln.evidence}
-                            </p>
-                          </CollapsibleContent>
-                        </Collapsible>
+                              <p className="text-sm text-slate-300 font-mono bg-slate-900/50 p-2 rounded border border-slate-700/50 break-all">
+                                {vuln.evidence}
+                              </p>
+                            </CollapsibleContent>
+                          </Collapsible>
 
-                        <Collapsible
-                          open={expandedEvidence.has(vuln.id + 100000)}
-                          onOpenChange={() => toggleEvidence(vuln.id + 100000)}
-                        >
-                          <CollapsibleTrigger asChild>
-                            <button className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors w-full">
-                              {expandedEvidence.has(vuln.id + 100000) ? (
-                                <ChevronUp className="h-4 w-4" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4" />
-                              )}
-                              Remediation
-                            </button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-2">
-                            <p className="text-sm text-slate-300 bg-emerald-500/10 border border-emerald-500/30 p-3 rounded">
-                              {vuln.remediation}
-                            </p>
-                          </CollapsibleContent>
-                        </Collapsible>
+                          <Collapsible
+                            open={expandedEvidence.has(vuln.id + 100000)}
+                            onOpenChange={() => toggleEvidence(vuln.id + 100000)}
+                          >
+                            <CollapsibleTrigger asChild>
+                              <button className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors w-full">
+                                {expandedEvidence.has(vuln.id + 100000) ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                                Remediation
+                              </button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="mt-2">
+                              <p className="text-sm text-slate-300 bg-emerald-500/10 border border-emerald-500/30 p-3 rounded">
+                                {vuln.remediation}
+                              </p>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               </>
             )}

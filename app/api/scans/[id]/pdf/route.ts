@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
+// import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { VulnerabilityReportDocument } from "@/components/pdf/VulnerabilityReportDocument"
@@ -15,41 +15,36 @@ interface Scan {
   high_count: number
   medium_count: number
   low_count: number
-  user_name: string | null
-  user_email: string | null
-}
-
-interface CVE {
-  cve_id: string
-  cve_description: string
-  cvss_v3_score: number | null
-  published_date: string | null
+  user_name?: string
+  user_email?: string
 }
 
 interface Vulnerability {
   id: string
   vulnerability_name: string
   vulnerability_type: string
-  description: string
+  description: string | null
+  severity: string
+  affected_url: string | null
+  remediation: string | null
   cwe_id: string | null
   cwe_name: string | null
-  cvss_score: number | null
-  severity: string
+  cvss_score: number
   ai_predicted_severity: string | null
-  ai_confidence: number | null
-  remediation: string | null
-  affected_url: string | null
+  ai_confidence: number
   evidence: string | null
-  cves: CVE[]
+  cves: Array<{
+    cve_id: string
+    cve_description: string
+    cvss_v3_score: number
+    published_date: string
+  }>
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getSession()
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // Clerk disabled for local dev
+    const userId = "local-user"
 
     const { id: scanId } = await params
 
@@ -64,12 +59,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         s.critical_count,
         s.high_count,
         s.medium_count,
-        s.low_count,
-        u.name as user_name,
-        u.email as user_email
+        s.low_count
       FROM scans s
-      LEFT JOIN neon_auth.users_sync u ON s.user_id = u.id
-      WHERE s.id = ${scanId} AND s.user_id = ${user.id}
+      WHERE s.id = ${scanId}
     `
 
     if (scanResult.length === 0) {
@@ -87,23 +79,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const vulnerabilities = await sql`
       SELECT 
-        v.id,
-        v.vulnerability_name,
-        v.vulnerability_type,
-        v.description,
-        v.cwe_id,
-        v.cwe_name,
-        v.cvss_score,
-        v.severity,
-        v.ai_predicted_severity,
-        v.ai_confidence,
-        v.remediation,
-        v.affected_url,
-        v.evidence
-      FROM vulnerabilities v
-      WHERE v.scan_id = ${scanId}
+        id,
+        vulnerability_name,
+        vulnerability_type,
+        description,
+        severity,
+        affected_url,
+        remediation
+      FROM vulnerabilities
+      WHERE scan_id = ${scanId}
       ORDER BY 
-        CASE v.severity
+        CASE severity
           WHEN 'critical' THEN 1
           WHEN 'high' THEN 2
           WHEN 'medium' THEN 3
@@ -111,20 +97,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         END
     `
 
-    const vulnerabilitiesWithCVEs = await Promise.all(
-      vulnerabilities.map(async (vuln) => {
-        const cves = await sql`
-          SELECT cve_id, cve_description, cvss_v3_score, published_date
-          FROM cve_mappings
-          WHERE vulnerability_id = ${vuln.id}
-        `
-        return { ...vuln, cves }
-      }),
-    )
+    const vulnerabilitiesWithCVEs = vulnerabilities.map((vuln) => ({
+      ...vuln,
+      cwe_id: null,
+      cwe_name: null,
+      cvss_score: 0,
+      ai_predicted_severity: vuln.severity,
+      ai_confidence: 0,
+      evidence: null,
+      cves: [],
+    }))
 
     const doc = VulnerabilityReportDocument({
-      scan: scan as Scan,
-      vulnerabilities: vulnerabilitiesWithCVEs as Vulnerability[],
+      scan: scan as any,
+      vulnerabilities: vulnerabilitiesWithCVEs as any,
     })
     const buffer = await renderToBuffer(doc)
     const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
@@ -143,6 +129,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return response
   } catch (error) {
     console.error("[PDF] Error generating PDF:", error)
-    return NextResponse.json({ error: "Failed to generate PDF report" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to generate PDF report", details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
