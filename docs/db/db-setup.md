@@ -19,18 +19,10 @@
 
 ## 2. Run the Schema Migration
 
-### Option A: Neon SQL Editor (Recommended)
-
 1. In the Neon dashboard, go to **SQL Editor**
-2. Open `backend/migration.sql` from the project
-3. Paste the **entire contents** into the SQL editor
-4. Click **Run**
-
-### Option B: CLI
-
-```bash
-psql "postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require" -f backend/migration.sql
-```
+2. Copy the **entire contents** of [migration.sql](file:///d:/PROJECTS/Vulnerbiltiy-system/backend/migration.sql)
+3. Paste into the SQL editor and click **Run**
+4. This script sets up all tables, columns, and indexes automatically.
 
 ---
 
