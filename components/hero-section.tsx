@@ -52,11 +52,11 @@ export function HeroSection() {
                         transition={{ duration: 0.5, delay: 0.3 }}
                         className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
                     >
-                        <Button asChild size="lg" className="rounded-full h-12 px-8 text-base bg-white text-black hover:bg-white/90">
-                            <Link href="/register">Start Scanning Free</Link>
+<Button asChild size="lg" className="rounded-full h-12 px-8 text-base bg-white text-black hover:bg-white/90">
+                            <Link href="/sign-up">Start Scanning Free</Link>
                         </Button>
-                        <Button asChild variant="outline" size="lg" className="rounded-full h-12 px-8 text-base border-white/10 hover:bg-white/5">
-                            <Link href="/demo">
+<Button asChild variant="outline" size="lg" className="rounded-full h-12 px-8 text-base border-white/10 hover:bg-white/5">
+                            <Link href="/sign-in">
                                 View Live Demo <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>

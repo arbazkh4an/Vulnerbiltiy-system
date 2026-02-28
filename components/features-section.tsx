@@ -27,7 +27,7 @@ const features = [
     },
     {
         title: "Real-time Monitoring",
-        description: "Watch scans progress in real-time with live socket updates.",
+        description: "Track scan progress with detailed status updates and notifications.",
         icon: Activity,
         colSpan: "lg:col-span-2",
         delay: 0.4

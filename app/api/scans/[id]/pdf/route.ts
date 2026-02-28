@@ -1,8 +1,49 @@
 import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { sql } from "@/lib/db"
+import { renderToBuffer } from "@react-pdf/renderer"
+import { VulnerabilityReportDocument } from "@/components/pdf/VulnerabilityReportDocument"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+interface Scan {
+  id: string
+  target_url: string
+  scan_status: string
+  started_at: Date | null
+  completed_at: Date | null
+  total_vulnerabilities: number
+  critical_count: number
+  high_count: number
+  medium_count: number
+  low_count: number
+  user_name: string | null
+  user_email: string | null
+}
+
+interface CVE {
+  cve_id: string
+  cve_description: string
+  cvss_v3_score: number | null
+  published_date: string | null
+}
+
+interface Vulnerability {
+  id: string
+  vulnerability_name: string
+  vulnerability_type: string
+  description: string
+  cwe_id: string | null
+  cwe_name: string | null
+  cvss_score: number | null
+  severity: string
+  ai_predicted_severity: string | null
+  ai_confidence: number | null
+  remediation: string | null
+  affected_url: string | null
+  evidence: string | null
+  cves: CVE[]
+}
+
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getSession()
 
@@ -10,9 +51,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const scanId = params.id
+    const { id: scanId } = await params
 
-    // Fetch scan details
     const scanResult = await sql`
       SELECT 
         s.id,
@@ -38,7 +78,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const scan = scanResult[0]
 
-    // Fetch vulnerabilities
+    if (scan.scan_status !== "completed") {
+      return NextResponse.json(
+        { error: "PDF not ready", message: "Scan is still in progress" },
+        { status: 202 }
+      )
+    }
+
     const vulnerabilities = await sql`
       SELECT 
         v.id,
@@ -65,7 +111,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         END
     `
 
-    // Fetch CVEs for each vulnerability
     const vulnerabilitiesWithCVEs = await Promise.all(
       vulnerabilities.map(async (vuln) => {
         const cves = await sql`
@@ -77,34 +122,56 @@ export async function GET(request: Request, { params }: { params: { id: string }
       }),
     )
 
-    // In a real implementation, this would call the Python backend to generate PDF
-    // For now, we'll call a simple PDF generation endpoint
-    // Forward the data to the backend for PDF generation
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000"
+    let pdfBuffer: ArrayBuffer | null = null
+    const backendUrl = process.env.BACKEND_URL
 
-    const pdfResponse = await fetch(`${backendUrl}/api/generate-pdf`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        scan,
-        vulnerabilities: vulnerabilitiesWithCVEs,
-      }),
-    })
+    if (backendUrl) {
+      try {
+        const pdfResponse = await fetch(`${backendUrl}/api/generate-pdf`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scan,
+            vulnerabilities: vulnerabilitiesWithCVEs,
+          }),
+          signal: AbortSignal.timeout(10000),
+        })
 
-    if (!pdfResponse.ok) {
-      throw new Error("Failed to generate PDF")
+        if (pdfResponse.ok) {
+          const contentType = pdfResponse.headers.get("content-type")
+          if (contentType?.includes("application/pdf")) {
+            const buffer = await pdfResponse.arrayBuffer()
+            pdfBuffer = buffer
+          }
+        }
+      } catch (backendError) {
+        // Backend unavailable, fallback to local generation
+      }
     }
 
-    const pdfBuffer = await pdfResponse.arrayBuffer()
+    if (!pdfBuffer) {
+      const doc = VulnerabilityReportDocument({
+        scan: scan as Scan,
+        vulnerabilities: vulnerabilitiesWithCVEs as Vulnerability[],
+      })
+      const buffer = await renderToBuffer(doc)
+      const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
+      pdfBuffer = arrayBuffer
+    }
 
-    return new NextResponse(pdfBuffer, {
+    const response = new NextResponse(new Uint8Array(pdfBuffer), {
+      status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="vulnerability-report-${scanId}.pdf"`,
+        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        "ETag": `"${scanId}-${Date.now()}"`,
       },
     })
+
+    return response
   } catch (error) {
-    console.error("[v0] Error generating PDF:", error)
+    console.error("[PDF] Error generating PDF:", error)
     return NextResponse.json({ error: "Failed to generate PDF report" }, { status: 500 })
   }
 }

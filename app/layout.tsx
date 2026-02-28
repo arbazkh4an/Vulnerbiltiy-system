@@ -4,15 +4,31 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 
 import { ThemeProvider } from "@/components/theme-provider"
+import { ErrorBoundary } from "@/components/error-boundary"
 import "./globals.css"
-
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "VulnScan AI - Automated Vulnerability Scanner",
   description: "AI-powered web vulnerability scanning system targeting OWASP Top 10:2025",
   generator: "v0.app",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://vulnscan.ai'),
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'VulnScan AI',
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
   icons: {
     icon: [
       {
@@ -43,15 +59,17 @@ export default function RootLayout({
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en" suppressHydrationWarning>
         <body className={`font-sans antialiased`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Analytics />
-          </ThemeProvider>
+          <ErrorBoundary>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Analytics />
+            </ThemeProvider>
+          </ErrorBoundary>
         </body>
       </html>
     </ClerkProvider>

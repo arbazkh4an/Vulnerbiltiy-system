@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { sql } from "@/lib/db"
+import { z } from "zod"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+const scanIdSchema = z.string().uuid("Invalid scan ID format")
+
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getSession()
 
@@ -10,9 +13,17 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const scanId = params.id
+    const { id: scanId } = await params
 
-    // Fetch scan details
+    const scanIdValidation = scanIdSchema.safeParse(scanId)
+    
+    if (!scanIdValidation.success) {
+      return NextResponse.json(
+        { error: "Invalid scan ID", details: scanIdValidation.error.errors[0]?.message },
+        { status: 400 }
+      )
+    }
+
     const scanResult = await sql`
       SELECT 
         id, 
@@ -30,12 +41,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
     `
 
     if (scanResult.length === 0) {
-      return NextResponse.json({ error: "Scan not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Scan not found", message: "No scan found with the provided ID or access denied" },
+        { status: 404 }
+      )
     }
 
     const scan = scanResult[0]
 
-    // Fetch vulnerabilities for this scan
     const vulnerabilities = await sql`
       SELECT 
         v.id,
@@ -62,7 +75,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         END
     `
 
-    // Fetch CVE mappings for each vulnerability
     const vulnerabilitiesWithCVEs = await Promise.all(
       vulnerabilities.map(async (vuln) => {
         const cves = await sql`

@@ -3,14 +3,10 @@ import { neon } from "@neondatabase/serverless"
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  console.warn("Warning: DATABASE_URL environment variable is not set. Database operations will fail.");
+  throw new Error("DATABASE_URL environment variable is not set")
 }
 
-export const sql = databaseUrl
-  ? neon(databaseUrl)
-  : ((...args: any[]) => {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }) as any;
+export const sql = neon(databaseUrl)
 
 // Helper function to get user by email
 export async function getUserByEmail(email: string) {

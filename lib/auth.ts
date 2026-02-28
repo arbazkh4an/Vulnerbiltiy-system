@@ -2,9 +2,17 @@ import { jwtVerify, SignJWT } from "jose"
 import { cookies } from "next/headers"
 import { getUserById } from "./db"
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-change-in-production-minimum-32-characters-long",
-)
+const JWT_SECRET = (() => {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("JWT_SECRET environment variable is required in production")
+    }
+    console.warn("Warning: JWT_SECRET is not set. Using insecure default for development.")
+    return new TextEncoder().encode("your-secret-key-change-in-production-minimum-32-characters-long")
+  }
+  return new TextEncoder().encode(secret)
+})()
 
 export async function createSession(userId: string) {
   const token = await new SignJWT({ userId })

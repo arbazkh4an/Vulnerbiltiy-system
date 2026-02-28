@@ -10,14 +10,21 @@ import { Button } from "@/components/ui/button"
 export function ModeToggle() {
     const { theme, setTheme } = useTheme()
     const [mounted, setMounted] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false)
 
     // Avoid hydration mismatch
     React.useEffect(() => {
         setMounted(true)
     }, [])
 
+    const handleThemeToggle = async () => {
+        setIsLoading(true)
+        setTheme(theme === "dark" ? "light" : "dark")
+        setTimeout(() => setIsLoading(false), 200)
+    }
+
     if (!mounted) {
-        return <Button variant="ghost" size="icon" disabled />
+        return <Button variant="ghost" size="icon" disabled aria-label="Loading theme" />
     }
 
     const isDark = theme === "dark"
@@ -26,8 +33,10 @@ export function ModeToggle() {
         <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
+            onClick={handleThemeToggle}
+            disabled={isLoading}
             className="relative h-10 w-10 rounded-full"
+            aria-label={isLoading ? "Theme changing" : "Toggle theme"}
         >
             <motion.div
                 initial={false}

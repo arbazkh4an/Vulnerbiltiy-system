@@ -53,7 +53,7 @@ export function SiteHeader() {
                         </SignUpButton>
                     </SignedOut>
                     <SignedIn>
-                        <UserButton />
+                        <UserButton aria-label="User menu" />
                     </SignedIn>
                 </div>
             </div>
