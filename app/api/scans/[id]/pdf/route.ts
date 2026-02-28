@@ -122,42 +122,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       }),
     )
 
-    let pdfBuffer: ArrayBuffer | null = null
-    const backendUrl = process.env.BACKEND_URL
-
-    if (backendUrl) {
-      try {
-        const pdfResponse = await fetch(`${backendUrl}/api/generate-pdf`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            scan,
-            vulnerabilities: vulnerabilitiesWithCVEs,
-          }),
-          signal: AbortSignal.timeout(10000),
-        })
-
-        if (pdfResponse.ok) {
-          const contentType = pdfResponse.headers.get("content-type")
-          if (contentType?.includes("application/pdf")) {
-            const buffer = await pdfResponse.arrayBuffer()
-            pdfBuffer = buffer
-          }
-        }
-      } catch (backendError) {
-        // Backend unavailable, fallback to local generation
-      }
-    }
-
-    if (!pdfBuffer) {
-      const doc = VulnerabilityReportDocument({
-        scan: scan as Scan,
-        vulnerabilities: vulnerabilitiesWithCVEs as Vulnerability[],
-      })
-      const buffer = await renderToBuffer(doc)
-      const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
-      pdfBuffer = arrayBuffer
-    }
+    const doc = VulnerabilityReportDocument({
+      scan: scan as Scan,
+      vulnerabilities: vulnerabilitiesWithCVEs as Vulnerability[],
+    })
+    const buffer = await renderToBuffer(doc)
+    const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
+    const pdfBuffer = arrayBuffer
 
     const response = new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,

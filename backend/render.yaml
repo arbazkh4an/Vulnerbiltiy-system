@@ -1,12 +1,37 @@
 services:
+  # FastAPI Web Service
   - type: web
-    name: vulnscan-backend
+    name: sentinelai-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: NVD_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: '["*"]'
       - key: PYTHON_VERSION
         value: 3.11.6
-    healthCheckPath: /health
+    healthCheckPath: /api/health
+
+  # Background Worker
+  - type: worker
+    name: sentinelai-worker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.worker.worker
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: NVD_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.6

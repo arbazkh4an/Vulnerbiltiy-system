@@ -1,87 +1,70 @@
-# VulnScan AI - Python Backend
+# SentinelAI — Backend
 
-## Overview
-Flask-based vulnerability scanning backend targeting OWASP Top 10:2025 vulnerabilities.
+AI-powered OWASP web security scanner backend built with **FastAPI + Python 3.11**.
 
-## Features
-- Automated vulnerability detection
-- AI-powered severity prediction
-- NVD API integration for CVE/CWE data
-- PostgreSQL database integration
-- RESTful API design
+## Architecture
 
-## Setup Instructions
+```
+backend/
+├── app/
+│   ├── main.py              ← FastAPI entry point
+│   ├── config.py             ← Pydantic Settings
+│   ├── logging.py            ← structlog JSON logging
+│   ├── api/                  ← API routes (scan, history, health)
+│   ├── core/                 ← Security, validation, rate limiting, exceptions
+│   ├── models/               ← Pydantic request/response schemas
+│   ├── services/             ← AI service, scan orchestration, PDF generation
+│   ├── scanners/             ← Header, SSL, Path, CVE scanners
+│   ├── db/                   ← asyncpg session + repositories
+│   └── worker/               ← Background scan worker
+├── tests/                    ← pytest test suites
+├── migration.sql             ← Database schema migration
+├── Dockerfile                ← Production container
+├── render.yaml               ← Render deployment (web + worker)
+├── requirements.txt          ← Python dependencies
+└── .env.example              ← Environment variable template
+```
 
-### Local Development
+## Quick Start
 
-1. Install dependencies:
-\`\`\`bash
+```bash
+# 1. Install dependencies
 pip install -r requirements.txt
-\`\`\`
 
-2. Set environment variables:
-\`\`\`bash
-export DATABASE_URL="your-postgresql-connection-string"
-\`\`\`
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with DATABASE_URL, GROQ_API_KEY, etc.
 
-3. Run the server:
-\`\`\`bash
-python app.py
-\`\`\`
+# 3. Run database migration
+# Execute migration.sql against your PostgreSQL database
 
-### Deployment on Render
+# 4. Start API server
+uvicorn app.main:app --reload --port 5000
 
-1. Create a new Web Service on Render
-2. Connect your GitHub repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `gunicorn app:app`
-5. Add environment variable: `DATABASE_URL`
-
-### Deployment on Railway
-
-1. Create a new project on Railway
-2. Connect your GitHub repository
-3. Railway will auto-detect Python and use the Dockerfile
-4. Add environment variable: `DATABASE_URL`
-
-### Deployment on Heroku
-
-1. Install Heroku CLI
-2. Create a new app:
-\`\`\`bash
-heroku create vulnscan-backend
-\`\`\`
-
-3. Add PostgreSQL addon:
-\`\`\`bash
-heroku addons:create heroku-postgresql:hobby-dev
-\`\`\`
-
-4. Deploy:
-\`\`\`bash
-git push heroku main
-\`\`\`
+# 5. Start background worker (separate terminal)
+python -m app.worker.worker
+```
 
 ## API Endpoints
 
-### Health Check
-\`\`\`
-GET /health
-\`\`\`
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/scan` | Submit URL for scanning |
+| GET | `/api/scan/{id}` | Get scan status + results |
+| GET | `/api/history` | Paginated scan history |
+| GET | `/api/health` | System health check |
 
-### Start Scan
-\`\`\`
-POST /api/scan/start
-Body: { "scanId": 123, "url": "https://example.com" }
-\`\`\`
+## Running Tests
 
-### Get Scan Status
-\`\`\`
-GET /api/scan/status/<scan_id>
-\`\`\`
+```bash
+pip install pytest pytest-asyncio
+pytest tests/ -v
+```
 
-## Security Notes
-- Always use HTTPS in production
-- Configure CORS appropriately
-- Keep dependencies updated
-- Use environment variables for sensitive data
+## Deployment
+
+Configured for **Render** with two services:
+- **Web Service**: FastAPI API server via uvicorn
+- **Worker Service**: Background scan processor
+
+See `render.yaml` for configuration.

@@ -1,4 +1,4 @@
-# Production-ready Dockerfile for deployment
+# Production Dockerfile for SentinelAI FastAPI Backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -13,5 +13,5 @@ COPY . .
 # Expose port
 EXPOSE 5000
 
-# Run with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app:app"]
+# Run with uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]

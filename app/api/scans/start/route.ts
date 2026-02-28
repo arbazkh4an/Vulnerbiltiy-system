@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
   }
 
   const validationResult = startScanSchema.safeParse(body)
-  
+
   if (!validationResult.success) {
     const errors = validationResult.error.errors.map((e) => ({
       field: e.path.join("."),
@@ -120,82 +120,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Insert scan as 'queued' — the background worker will pick it up
     const result = await sql`
-      INSERT INTO scans (user_id, target_url, scan_status, started_at)
-      VALUES (${user.id}, ${url}, 'running', NOW())
+      INSERT INTO scans (user_id, target_url, scan_status, progress)
+      VALUES (${user.id}, ${url}, 'queued', 0)
       RETURNING id
     `
 
     const scanId = result[0].id
 
-    const backendUrl = process.env.BACKEND_URL
-    
-    try {
-      const backendResponse = await fetch(`${backendUrl}/api/scan/start`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          scanId,
-          url: url,
-        }),
-      })
-
-      if (!backendResponse.ok) {
-        let errorData: Record<string, unknown> = {}
-        try {
-          errorData = await backendResponse.json()
-        } catch {
-          errorData = { error: `Backend returned status ${backendResponse.status}` }
-        }
-        console.error("[v0] Backend scan error:", errorData)
-        
-        await sql`
-          UPDATE scans 
-          SET scan_status = 'failed'
-          WHERE id = ${scanId}
-        `
-        
-        return NextResponse.json(
-          { error: "Scan failed", details: errorData.error || "Backend processing failed" },
-          { status: 502 }
-        )
-      }
-
-      const backendData = await backendResponse.json()
-
-      return NextResponse.json({
-        success: true,
-        scanId,
-        message: "Scan started successfully",
-        ...backendData,
-      })
-    } catch (error) {
-      console.error("[v0] Error calling backend:", error)
-      
-      try {
-        await sql`
-          UPDATE scans 
-          SET scan_status = 'failed'
-          WHERE id = ${scanId}
-        `
-      } catch (dbError) {
-        console.error("[v0] Error updating scan status:", dbError)
-      }
-      
-      if (error instanceof Error && error.message.includes("fetch")) {
-        console.warn("[v0] Backend not available, scan queued but not started")
-        return NextResponse.json({
-          success: true,
-          scanId,
-          message: "Scan queued (backend unavailable)",
-          warning: "Backend service is not available. Scan will start when backend is online.",
-        })
-      }
-      
-      return NextResponse.json({ error: "Failed to communicate with backend" }, { status: 503 })
-    }
+    return NextResponse.json({
+      success: true,
+      scanId,
+      message: "Scan queued successfully. The background worker will process it shortly.",
+    })
   } catch (error) {
     console.error("[v0] Error starting scan:", error)
     return NextResponse.json({ error: "Failed to start scan" }, { status: 500 })
