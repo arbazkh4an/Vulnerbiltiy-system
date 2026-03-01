@@ -23,7 +23,7 @@ export default function Home() {
             <a href="/terms" className="hover:text-foreground">Terms of Service</a>
             <a href="/contact" className="hover:text-foreground">Contact</a>
           </div>
-          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} VulnScan AI. Built for FYP 2025.</p>
+          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} VulnScan AI.</p>
         </div>
       </footer>
     </div>
