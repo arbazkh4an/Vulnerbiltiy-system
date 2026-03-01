@@ -370,80 +370,92 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Scan Input Section */}
-        <Card className="border-slate-800 bg-slate-900/60 backdrop-blur shadow-lg shadow-black/20">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-slate-100 flex items-center gap-3 text-lg">
-              <div className="p-2 bg-emerald-500/10 rounded-lg">
-                <Scan className="h-5 w-5 text-emerald-400" />
-              </div>
-              Start New Vulnerability Scan
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              Enter a target URL to scan for OWASP Top 10:2025 vulnerabilities
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleStartScan} className="space-y-4">
+        {/* Scan Input Section */}
+        <div className="bg-[#0a0a0e] border border-slate-800/60 rounded-xl overflow-hidden shadow-2xl shadow-purple-900/10">
+          <div className="h-10 bg-[#15151b] border-b border-slate-800/80 flex items-center px-4 shrink-0">
+            <div className="flex gap-2 w-1/3">
+              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <div className="w-1/3 text-center">
+              <span className="text-xs text-slate-400 font-mono">vulnscan-launcher.exe</span>
+            </div>
+          </div>
+
+          <div className="p-8">
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-slate-100 flex items-center gap-3">
+                <span className="text-purple-500">{">_"}</span>
+                Start New Vulnerability Scan
+              </h2>
+              <p className="text-sm text-slate-500 font-mono mt-2">
+                Enter a target URL to initiate automated OWASP Top 10 analysis sequence...
+              </p>
+            </div>
+
+            <form onSubmit={handleStartScan} className="space-y-6">
               {error && (
-                <Alert variant="destructive" className="bg-red-500/10 border-red-500/50">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3 text-red-400 font-mono text-sm">
+                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <p>{error}</p>
+                </div>
               )}
 
               {success && (
-                <Alert className="bg-emerald-500/10 border-emerald-500/50">
-                  <CheckCircle className="h-4 w-4 text-emerald-400" />
-                  <AlertDescription className="text-emerald-400">{success}</AlertDescription>
-                </Alert>
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-start gap-3 text-emerald-400 font-mono text-sm">
+                  <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <p>{success}</p>
+                </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                  <Input
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                  <input
                     id="url-input"
                     type="url"
-                    placeholder="https://example.com"
+                    placeholder="https://target-system.com"
                     value={targetUrl}
                     onChange={(e) => setTargetUrl(e.target.value)}
                     required
-                    className="pl-10 bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                    className="w-full h-12 pl-12 pr-4 bg-[#111116] border border-slate-700/60 rounded-lg text-slate-100 placeholder:text-slate-600 font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all font-medium"
                     disabled={scanning}
                   />
                 </div>
-                <Button
+                <button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   disabled={scanning || !canSubmit}
+                  className="h-12 px-8 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-lg font-bold tracking-wide flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed border border-purple-500/50 disabled:border-slate-700 shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:shadow-none"
                 >
                   {scanning ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Scanning...
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      INITIATING...
                     </>
                   ) : rateLimiter.isLimited() ? (
                     <>
-                      <Clock className="h-4 w-4 mr-2" />
-                      Wait {rateLimiter.getRemainingTime()}s
+                      <Clock className="h-4 w-4" />
+                      WAIT {rateLimiter.getRemainingTime()}S
                     </>
                   ) : (
                     <>
-                      <Zap className="h-4 w-4 mr-2" />
-                      Start Scan
+                      <Zap className="h-4 w-4" />
+                      EXECUTE SCAN
                     </>
                   )}
-                </Button>
+                </button>
               </div>
+
               {rateLimiter.isLimited() && (
-                <p className="text-xs text-slate-400 flex items-center gap-2">
+                <p className="text-xs text-slate-500 font-mono flex items-center gap-2">
                   <Clock className="h-3 w-3" />
-                  Rate limit: {rateLimiter.remaining}/5 scans remaining this minute
+                  Rate limit active: {rateLimiter.remaining}/5 scans remaining this minute.
                 </p>
               )}
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Stats Overview */}
         <div className="grid md:grid-cols-4 gap-4">

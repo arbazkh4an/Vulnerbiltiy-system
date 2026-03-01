@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { AlertTriangle, CheckCircle, Shield, ArrowLeft, Loader2, PlaySquare } from "lucide-react"
+import { AlertTriangle, CheckCircle, Shield, ArrowLeft, Loader2, PlaySquare, X, Activity, Target } from "lucide-react"
 import Link from "next/link"
 import type { Vulnerability, Scan } from "@/lib/types"
 
@@ -18,6 +18,8 @@ export default function HackerScanDashboard() {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null)
+  const [showRiskScoreModal, setShowRiskScoreModal] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -56,7 +58,7 @@ export default function HackerScanDashboard() {
 
   // Polling for scan status updates when scan is running
   useEffect(() => {
-    if (!scan || scan.scan_status === "completed" || scan.scan_status === "failed") {
+    if (!scan || scan.scan_status === "completed" || scan.scan_status === "complete" || scan.scan_status === "failed") {
       return
     }
 
@@ -101,10 +103,10 @@ export default function HackerScanDashboard() {
     )
   }
 
-  const isRunning = scan.scan_status !== "completed" && scan.scan_status !== "failed"
+  const isRunning = scan.scan_status !== "completed" && scan.scan_status !== "complete" && scan.scan_status !== "failed"
 
   return (
-    <div className="min-h-screen bg-[#050505] p-4 md:p-8 font-sans text-slate-300 selection:bg-purple-500/30 flex justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#050505] via-[#100720] to-[#050505] p-4 md:p-8 font-sans text-slate-300 selection:bg-purple-500/30 flex justify-center items-center">
 
       {/* Container simulating an application window */}
       <div className="w-full max-w-6xl bg-[#0d0d12] border border-slate-800/60 rounded-xl overflow-hidden shadow-2xl shadow-purple-900/10 flex flex-col h-[85vh]">
@@ -140,35 +142,40 @@ export default function HackerScanDashboard() {
               <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Targets</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-slate-200">
-                  <Shield className="h-4 w-4 text-slate-400" />
+                  <Target className="h-4 w-4 text-purple-400" />
                   <span className="text-sm truncate" title={scan.target_url}>
                     {scan.target_url.replace(/^https?:\/\//, '').split('/')[0]}
                   </span>
                 </div>
-                {/* Mock inactive target for aesthetic */}
-                <div className="flex items-center gap-3 text-slate-500">
-                  <Shield className="h-4 w-4 opacity-50" />
-                  <span className="text-sm">staging-server</span>
+                {/* Total Risk Score Link */}
+                <div
+                  className="flex items-center gap-3 text-slate-400 cursor-pointer hover:text-emerald-400 transition-colors"
+                  onClick={() => setShowRiskScoreModal(true)}
+                >
+                  <Activity className="h-4 w-4" />
+                  <span className="text-sm">Total Risk Score</span>
                 </div>
               </div>
             </div>
 
-            {/* Engines */}
+            {/* Detected Findings */}
             <div>
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Engines</h3>
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Detected Findings</h3>
               <div className="space-y-3 font-mono text-sm text-slate-400">
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-600">{">_"}</span> SQL Injection
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-600">{">_"}</span> XSS Scanner
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-600">{">_"}</span> CSRF Detection
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-600">{">_"}</span> Auth Bypass
-                </div>
+                {vulnerabilities.length === 0 ? (
+                  <div className="text-slate-600 italic text-xs">Awaiting findings...</div>
+                ) : (
+                  vulnerabilities.map(vuln => (
+                    <div
+                      key={`sidebar-${vuln.id}`}
+                      className="flex items-start gap-2 cursor-pointer hover:text-purple-400 transition-colors"
+                      onClick={() => setSelectedVuln(vuln)}
+                    >
+                      <span className="text-slate-600 mt-0.5 shrink-0">{">_"}</span>
+                      <span className="truncate" title={vuln.vulnerability_name}>{vuln.vulnerability_name}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -281,6 +288,90 @@ export default function HackerScanDashboard() {
 
           </div>
         </div>
+        {/* Vulnerability Details Modal */}
+        {selectedVuln && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-[#111116] border border-slate-700/60 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
+              <div className="flex items-center justify-between p-4 border-b border-slate-800/80 bg-[#15151b]">
+                <div className="flex items-center gap-3">
+                  {selectedVuln.severity === "critical" || selectedVuln.severity === "high" ? (
+                    <AlertTriangle className={`h-5 w-5 ${selectedVuln.severity === "critical" ? "text-red-500" : "text-orange-500"}`} />
+                  ) : (
+                    <CheckCircle className="h-5 w-5 text-blue-500" />
+                  )}
+                  <h3 className="text-lg font-bold text-slate-200">{selectedVuln.vulnerability_name}</h3>
+                </div>
+                <button onClick={() => setSelectedVuln(null)} className="text-slate-500 hover:text-slate-300 transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-300">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">AI Description</h4>
+                  <p className="leading-relaxed whitespace-pre-wrap">{selectedVuln.description || "No description available."}</p>
+                </div>
+                {selectedVuln.evidence && (
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Evidence</h4>
+                    <div className="p-3 bg-slate-900/50 border border-slate-800 rounded font-mono text-xs overflow-x-auto break-all">
+                      {selectedVuln.evidence}
+                    </div>
+                  </div>
+                )}
+                {selectedVuln.remediation && (
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Remediation</h4>
+                    <p className="leading-relaxed whitespace-pre-wrap text-emerald-400/90">{selectedVuln.remediation}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Risk Score Modal */}
+        {showRiskScoreModal && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="bg-[#0a0a0e] border border-slate-700/60 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col relative">
+              <button
+                onClick={() => setShowRiskScoreModal(false)}
+                className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors z-10"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <div className="p-10 flex flex-col items-center justify-center text-center">
+                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-8 font-mono">Total Risk Score</h3>
+
+                <div className="relative flex items-center justify-center w-48 h-48 rounded-full border-4 border-slate-800 bg-[#111118] shadow-[0_0_50px_rgba(0,0,0,0.5)] mb-8">
+                  <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 border-r-purple-500 border-b-transparent border-l-transparent animate-[spin_4s_linear_infinite] opacity-50"></div>
+                  <div className="absolute inset-2 rounded-full border-4 border-b-emerald-500 border-l-emerald-500 border-t-transparent border-r-transparent animate-[spin_3s_linear_infinite_reverse] opacity-30"></div>
+
+                  <div className="flex flex-col items-center justify-center relative z-10">
+                    <span className={`text-6xl font-black tracking-tighter ${(scan.risk_score || 0) > 75 ? 'text-red-500' :
+                      (scan.risk_score || 0) > 40 ? 'text-orange-500' : 'text-emerald-500'
+                      }`}>
+                      {scan.risk_score || 0}
+                    </span>
+                    <span className="text-slate-500 text-xs font-mono mt-1">/ 100</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-slate-300">
+                    {(scan.risk_score || 0) > 75
+                      ? "Critical Risk Detected. Immediate action required. The target architecture presents significant vulnerabilities."
+                      : (scan.risk_score || 0) > 40
+                        ? "Moderate Risk. Some vulnerabilities were found that could be escalated. Review recommended."
+                        : "Low Risk. The system architecture appears mostly secure with minor or informational flags."
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       <style dangerouslySetInnerHTML={{
@@ -289,7 +380,7 @@ export default function HackerScanDashboard() {
           100% { transform: translateX(100%); }
         }
       `}} />
-    </div>
+    </div >
   )
 }
 
