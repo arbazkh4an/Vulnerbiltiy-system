@@ -107,8 +107,10 @@ function getStatusBadge({ status }: { status: string }) {
   return <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeColor(status)}`}>{statusLabel}</span>
 }
 
+const MOCK_USER = { fullName: "Local User" }
+
 export default function ScanResultsPage() {
-  const user = { fullName: "Local User" }
+  const user = MOCK_USER
   const isLoaded = true
   const isSignedIn = true
   const router = useRouter()
@@ -137,7 +139,7 @@ export default function ScanResultsPage() {
   const [cveModalOpen, setCveModalOpen] = useState(false)
 
   // Evidence expansion state (track by vulnerability id)
-  const [expandedEvidence, setExpandedEvidence] = useState<Set<number>>(new Set())
+  const [expandedEvidence, setExpandedEvidence] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     // Auth disabled for local
@@ -256,7 +258,7 @@ export default function ScanResultsPage() {
     setCveModalOpen(true)
   }
 
-  function toggleEvidence(vulnId: number) {
+  function toggleEvidence(vulnId: string) {
     setExpandedEvidence(prev => {
       const newSet = new Set(prev)
       if (newSet.has(vulnId)) {
@@ -823,12 +825,12 @@ export default function ScanResultsPage() {
                     <div
                       key={vuln.id}
                       className={`p-5 bg-slate-800/40 border rounded-xl space-y-4 transition-all duration-200 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-slate-900/50 ${vuln.severity === 'critical'
-                          ? 'border-red-500/30 hover:border-red-500/50'
-                          : vuln.severity === 'high'
-                            ? 'border-orange-500/30 hover:border-orange-500/50'
-                            : vuln.severity === 'medium'
-                              ? 'border-amber-500/30 hover:border-amber-500/50'
-                              : 'border-blue-500/30 hover:border-blue-500/50'
+                        ? 'border-red-500/30 hover:border-red-500/50'
+                        : vuln.severity === 'high'
+                          ? 'border-orange-500/30 hover:border-orange-500/50'
+                          : vuln.severity === 'medium'
+                            ? 'border-amber-500/30 hover:border-amber-500/50'
+                            : 'border-blue-500/30 hover:border-blue-500/50'
                         }`}
                     >
                       <div className="flex items-start justify-between">
@@ -847,9 +849,9 @@ export default function ScanResultsPage() {
                         <div className="hidden md:flex flex-col items-center justify-center ml-4 p-3 bg-slate-900/60 rounded-lg border border-slate-700/50">
                           <span className="text-xs text-slate-400 uppercase tracking-wider mb-1">CVSS</span>
                           <span className={`text-2xl font-bold ${vuln.cvss_score >= 9 ? 'text-red-400' :
-                              vuln.cvss_score >= 7 ? 'text-orange-400' :
-                                vuln.cvss_score >= 4 ? 'text-amber-400' :
-                                  'text-blue-400'
+                            vuln.cvss_score >= 7 ? 'text-orange-400' :
+                              vuln.cvss_score >= 4 ? 'text-amber-400' :
+                                'text-blue-400'
                             }`}>{vuln.cvss_score}</span>
                           <span className="text-xs text-slate-500">/ 10</span>
                         </div>
@@ -869,14 +871,14 @@ export default function ScanResultsPage() {
                             </div>
                             <div className="text-right">
                               <p className="text-xs font-medium text-slate-400 mb-1">AI Confidence</p>
-                              <span className="text-sm font-semibold text-emerald-400">{vuln.ai_confidence.toFixed(0)}%</span>
+                              <span className="text-sm font-semibold text-emerald-400">{(vuln.ai_confidence ?? 0).toFixed(0)}%</span>
                             </div>
                           </div>
 
                           <div>
                             <p className="text-xs font-medium text-slate-400 mb-1">AI Prediction</p>
                             <div className="flex items-center gap-2">
-                              {getSeverityBadge({ severity: vuln.ai_predicted_severity })}
+                              {getSeverityBadge({ severity: vuln.ai_predicted_severity || "info" })}
                             </div>
                           </div>
 
@@ -941,8 +943,8 @@ export default function ScanResultsPage() {
                           </Collapsible>
 
                           <Collapsible
-                            open={expandedEvidence.has(vuln.id + 100000)}
-                            onOpenChange={() => toggleEvidence(vuln.id + 100000)}
+                            open={expandedEvidence.has(`${vuln.id}-remediation`)}
+                            onOpenChange={() => toggleEvidence(`${vuln.id}-remediation`)}
                           >
                             <CollapsibleTrigger asChild>
                               <button className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors w-full">

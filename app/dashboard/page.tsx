@@ -53,7 +53,7 @@ import {
 } from "@/components/ui/table"
 
 interface Scan {
-  id: number
+  id: string
   target_url: string
   scan_status: string
   started_at: string
@@ -71,8 +71,10 @@ type FilterStatus = "all" | "completed" | "running" | "failed" | "pending"
 
 const ITEMS_PER_PAGE = 10
 
+const MOCK_USER = { fullName: "Local User", primaryEmailAddress: { emailAddress: "local@example.com" } }
+
 export default function DashboardPage() {
-  const user = { fullName: "Local User", primaryEmailAddress: { emailAddress: "local@example.com" } }
+  const user = MOCK_USER
   const isLoaded = true
   const isSignedIn = true
   const signOut = () => router.push("/")
