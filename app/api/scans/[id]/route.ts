@@ -69,7 +69,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     `
 
     // Return vulnerabilities with empty cves array (cve_mappings table may not exist)
-    const vulnerabilitiesWithCVEs = vulnerabilities.map((vuln) => ({
+    let finalVulnerabilities = vulnerabilities.map((vuln) => ({
       ...vuln,
       cwe_id: null,
       cwe_name: null,
@@ -80,9 +80,38 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       cves: [],
     }))
 
+    if (finalVulnerabilities.length === 0) {
+      // Fallback to scan_results.ai_report if vulnerabilities table is empty
+      const scanResults = await sql`SELECT ai_report FROM scan_results WHERE scan_id = ${scanId}`
+      if (scanResults.length > 0 && scanResults[0].ai_report) {
+        const aiReport = typeof scanResults[0].ai_report === 'string'
+          ? JSON.parse(scanResults[0].ai_report)
+          : scanResults[0].ai_report;
+
+        if (aiReport && Array.isArray(aiReport.findings)) {
+          finalVulnerabilities = aiReport.findings.map((finding: any, index: number) => ({
+            id: `ai-finding-${index}-${Date.now()}`,
+            vulnerability_name: finding.title || 'Unknown Vulnerability',
+            vulnerability_type: finding.owasp_category || 'Unknown',
+            description: finding.description || null,
+            severity: finding.severity || 'info',
+            affected_url: scan.target_url,
+            remediation: finding.remediation || null,
+            cwe_id: finding.cwe_id || null,
+            cwe_name: null,
+            cvss_score: finding.cvss_score || 0,
+            ai_predicted_severity: finding.severity || 'info',
+            ai_confidence: 90,
+            evidence: finding.evidence || null,
+            cves: [],
+          }));
+        }
+      }
+    }
+
     return NextResponse.json({
       scan,
-      vulnerabilities: vulnerabilitiesWithCVEs,
+      vulnerabilities: finalVulnerabilities,
     })
   } catch (error) {
     console.error("[v0] Error fetching scan results:", error)
