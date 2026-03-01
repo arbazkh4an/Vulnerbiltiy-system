@@ -80,37 +80,41 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       cves: [],
     }))
 
-    if (finalVulnerabilities.length === 0) {
-      // Fallback to scan_results.ai_report if vulnerabilities table is empty
-      const scanResults = await sql`SELECT ai_report FROM scan_results WHERE scan_id = ${scanId}`
-      if (scanResults.length > 0 && scanResults[0].ai_report) {
-        const aiReport = typeof scanResults[0].ai_report === 'string'
-          ? JSON.parse(scanResults[0].ai_report)
-          : scanResults[0].ai_report;
+    let riskScore = 0
 
-        if (aiReport && Array.isArray(aiReport.findings)) {
-          finalVulnerabilities = aiReport.findings.map((finding: any, index: number) => ({
-            id: `ai-finding-${index}-${Date.now()}`,
-            vulnerability_name: finding.title || 'Unknown Vulnerability',
-            vulnerability_type: finding.owasp_category || 'Unknown',
-            description: finding.description || null,
-            severity: finding.severity || 'info',
-            affected_url: scan.target_url,
-            remediation: finding.remediation || null,
-            cwe_id: finding.cwe_id || null,
-            cwe_name: null,
-            cvss_score: finding.cvss_score || 0,
-            ai_predicted_severity: finding.severity || 'info',
-            ai_confidence: 90,
-            evidence: finding.evidence || null,
-            cves: [],
-          }));
-        }
+    // Always fetch ai_report to get the risk score (and fallback findings)
+    const scanResults = await sql`SELECT ai_report FROM scan_results WHERE scan_id = ${scanId}`
+    if (scanResults.length > 0 && scanResults[0].ai_report) {
+      const aiReport = typeof scanResults[0].ai_report === 'string'
+        ? JSON.parse(scanResults[0].ai_report)
+        : scanResults[0].ai_report;
+
+      if (aiReport.risk_score !== undefined) {
+        riskScore = aiReport.risk_score
+      }
+
+      if (finalVulnerabilities.length === 0 && aiReport && Array.isArray(aiReport.findings)) {
+        finalVulnerabilities = aiReport.findings.map((finding: any, index: number) => ({
+          id: `ai-finding-${index}-${Date.now()}`,
+          vulnerability_name: finding.title || 'Unknown Vulnerability',
+          vulnerability_type: finding.owasp_category || 'Unknown',
+          description: finding.description || null,
+          severity: finding.severity || 'info',
+          affected_url: scan.target_url,
+          remediation: finding.remediation || null,
+          cwe_id: finding.cwe_id || null,
+          cwe_name: null,
+          cvss_score: finding.cvss_score || 0,
+          ai_predicted_severity: finding.severity || 'info',
+          ai_confidence: 90,
+          evidence: finding.evidence || null,
+          cves: [],
+        }));
       }
     }
 
     return NextResponse.json({
-      scan,
+      scan: { ...scan, risk_score: riskScore },
       vulnerabilities: finalVulnerabilities,
     })
   } catch (error) {

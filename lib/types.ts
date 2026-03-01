@@ -15,7 +15,7 @@ export interface Scan {
   id: string
   user_id?: string
   target_url: string
-  scan_status: "queued" | "pending" | "running" | "completed" | "failed"
+  scan_status: "queued" | "pending" | "running" | "completed" | "complete" | "failed"
   started_at: string
   completed_at: string | null
   total_vulnerabilities: number
@@ -23,6 +23,7 @@ export interface Scan {
   high_count: number
   medium_count: number
   low_count: number
+  risk_score?: number
   created_at?: string
   updated_at?: string
 }
