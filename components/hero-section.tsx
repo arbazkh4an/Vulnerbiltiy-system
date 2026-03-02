@@ -4,10 +4,10 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { ArrowRight, CheckCircle2 } from "lucide-react"
-// import { useAuth } from "@clerk/nextjs"
+import { useUser, SignInButton } from "@clerk/nextjs"
 
 export function HeroSection() {
-    const isSignedIn = true // Clerk Disabled
+    const { isSignedIn } = useUser()
     return (
         <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32">
             {/* Background Blobs */}

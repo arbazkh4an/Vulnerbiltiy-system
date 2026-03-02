@@ -35,13 +35,13 @@
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|------------|
+| Layer    | Technology                                   |
+| -------- | -------------------------------------------- |
 | Frontend | Next.js 16, React 19, Tailwind CSS, Radix UI |
-| Backend | FastAPI, Python 3.x |
-| Database | PostgreSQL (Neon) |
-| AI | Groq (primary), OpenAI (fallback) |
-| Worker | Async Python worker with database polling |
+| Backend  | FastAPI, Python 3.x                          |
+| Database | PostgreSQL (Neon)                            |
+| AI       | Groq (primary), OpenAI (fallback)            |
+| Worker   | Async Python worker with database polling    |
 
 ---
 
@@ -203,44 +203,44 @@ Vulnerbiltiy-system/
 
 ### Pages/Routes
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `/` | `app/page.tsx` | Landing page with hero, features, pricing |
+| Route          | File                       | Purpose                                         |
+| -------------- | -------------------------- | ----------------------------------------------- |
+| `/`          | `app/page.tsx`           | Landing page with hero, features, pricing       |
 | `/dashboard` | `app/dashboard/page.tsx` | User dashboard - scan management, history table |
-| `/scan/[id]` | `app/scan/[id]/page.tsx` | Scan results detail with vulnerability listing |
-| `/login` | `app/login/page.tsx` | User login (Clerk integration) |
-| `/register` | `app/register/page.tsx` | User registration |
+| `/scan/[id]` | `app/scan/[id]/page.tsx` | Scan results detail with vulnerability listing  |
+| `/login`     | `app/login/page.tsx`     | User login (Clerk integration)                  |
+| `/register`  | `app/register/page.tsx`  | User registration                               |
 
 ### Frontend API Routes
 
-| Route | Method | File | Purpose |
-|-------|--------|------|---------|
-| `/api/scans` | GET | `app/api/scans/route.ts` | Fetch paginated scan history |
-| `/api/scans/start` | POST | `app/api/scans/start/route.ts` | Start new vulnerability scan |
-| `/api/scans/[id]` | GET | `app/api/scans/[id]/route.ts` | Get scan details & vulnerabilities |
-| `/api/scans/[id]/pdf` | GET | `app/api/scans/[id]/pdf/route.ts` | Generate PDF vulnerability report |
+| Route                   | Method | File                                | Purpose                            |
+| ----------------------- | ------ | ----------------------------------- | ---------------------------------- |
+| `/api/scans`          | GET    | `app/api/scans/route.ts`          | Fetch paginated scan history       |
+| `/api/scans/start`    | POST   | `app/api/scans/start/route.ts`    | Start new vulnerability scan       |
+| `/api/scans/[id]`     | GET    | `app/api/scans/[id]/route.ts`     | Get scan details & vulnerabilities |
+| `/api/scans/[id]/pdf` | GET    | `app/api/scans/[id]/pdf/route.ts` | Generate PDF vulnerability report  |
 
 ### Key Components
 
-| Component | File | Description |
-|-----------|------|-------------|
-| `SiteHeader` | `components/site-header.tsx` | Navigation header with auth |
-| `HeroSection` | `components/hero-section.tsx` | Landing page hero section |
-| `FeaturesSection` | `components/features-section.tsx` | Features showcase |
-| `ScannersSection` | `components/scanners-section.tsx` | Available scanners display |
-| `MethodologySection` | `components/methodology-section.tsx` | Scan methodology explanation |
-| `PricingSection` | `components/pricing-section.tsx` | Pricing tiers display |
-| `VulnerabilityReportDocument` | `components/pdf/VulnerabilityReportDocument.tsx` | React-PDF document template |
+| Component                       | File                                               | Description                  |
+| ------------------------------- | -------------------------------------------------- | ---------------------------- |
+| `SiteHeader`                  | `components/site-header.tsx`                     | Navigation header with auth  |
+| `HeroSection`                 | `components/hero-section.tsx`                    | Landing page hero section    |
+| `FeaturesSection`             | `components/features-section.tsx`                | Features showcase            |
+| `ScannersSection`             | `components/scanners-section.tsx`                | Available scanners display   |
+| `MethodologySection`          | `components/methodology-section.tsx`             | Scan methodology explanation |
+| `PricingSection`              | `components/pricing-section.tsx`                 | Pricing tiers display        |
+| `VulnerabilityReportDocument` | `components/pdf/VulnerabilityReportDocument.tsx` | React-PDF document template  |
 
 ### Custom Hooks
 
-| Hook | File | Purpose |
-|------|------|---------|
-| `useRateLimiter` | `hooks/use-rate-limiter.ts` | Client-side rate limiting |
-| `useDebounce` | `hooks/use-debounce.ts` | Debounce input values |
+| Hook                | File                           | Purpose                      |
+| ------------------- | ------------------------------ | ---------------------------- |
+| `useRateLimiter`  | `hooks/use-rate-limiter.ts`  | Client-side rate limiting    |
+| `useDebounce`     | `hooks/use-debounce.ts`      | Debounce input values        |
 | `useLocalStorage` | `hooks/use-local-storage.ts` | Persist data in localStorage |
-| `useMobile` | `hooks/use-mobile.ts` | Mobile viewport detection |
-| `useToast` | `hooks/use-toast.ts` | Toast notifications |
+| `useMobile`       | `hooks/use-mobile.ts`        | Mobile viewport detection    |
+| `useToast`        | `hooks/use-toast.ts`         | Toast notifications          |
 
 ---
 
@@ -248,37 +248,37 @@ Vulnerbiltiy-system/
 
 ### API Endpoints (Backend)
 
-| Route | Method | File | Purpose |
-|-------|--------|------|---------|
-| `/api/scan` | POST | `routes_scan.py` | Create new scan request |
-| `/api/scan/{scan_id}` | GET | `routes_scan.py` | Get scan status & results |
-| `/api/history` | GET | `routes_history.py` | Get paginated scan history |
-| `/api/health` | GET | `routes_health.py` | Health check |
+| Route                   | Method | File                  | Purpose                    |
+| ----------------------- | ------ | --------------------- | -------------------------- |
+| `/api/scan`           | POST   | `routes_scan.py`    | Create new scan request    |
+| `/api/scan/{scan_id}` | GET    | `routes_scan.py`    | Get scan status & results  |
+| `/api/history`        | GET    | `routes_history.py` | Get paginated scan history |
+| `/api/health`         | GET    | `routes_health.py`  | Health check               |
 
 ### Core Modules
 
-| Module | File | Purpose |
-|--------|------|---------|
-| Security | `app/core/security.py` | JWT token validation, user extraction |
-| Validators | `app/core/validators.py` | URL validation, SSRF protection |
-| Rate Limiting | `app/core/rate_limit.py` | Database-backed rate limiting |
-| Exceptions | `app/core/exceptions.py` | Custom HTTP exception classes |
+| Module        | File                       | Purpose                               |
+| ------------- | -------------------------- | ------------------------------------- |
+| Security      | `app/core/security.py`   | JWT token validation, user extraction |
+| Validators    | `app/core/validators.py` | URL validation, SSRF protection       |
+| Rate Limiting | `app/core/rate_limit.py` | Database-backed rate limiting         |
+| Exceptions    | `app/core/exceptions.py` | Custom HTTP exception classes         |
 
 ### Database Layer
 
-| File | Purpose |
-|------|---------|
-| `app/db/session.py` | AsyncPG connection pool management |
+| File                       | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `app/db/session.py`      | AsyncPG connection pool management              |
 | `app/db/repositories.py` | All CRUD operations for scans, results, consent |
 
 ### Pydantic Models
 
-| Model | File | Purpose |
-|-------|------|---------|
+| Model                                                    | File                      | Purpose                       |
+| -------------------------------------------------------- | ------------------------- | ----------------------------- |
 | `ScanCreate`, `ScanResponse`, `ScanDetailResponse` | `models/scan_models.py` | Scan request/response schemas |
-| `HistoryItem`, `HistoryResponse` | `models/scan_models.py` | History pagination schemas |
-| `HealthResponse` | `models/scan_models.py` | Health check response |
-| `AIReport`, `Finding` | `models/ai_models.py` | AI-generated report schemas |
+| `HistoryItem`, `HistoryResponse`                     | `models/scan_models.py` | History pagination schemas    |
+| `HealthResponse`                                       | `models/scan_models.py` | Health check response         |
+| `AIReport`, `Finding`                                | `models/ai_models.py`   | AI-generated report schemas   |
 
 ---
 
@@ -310,6 +310,7 @@ CREATE TABLE scans (
 ```
 
 **Indexes:**
+
 - `idx_scans_user_id` - User lookups
 - `idx_scans_status` - Status filtering
 - `idx_scans_created_at` - Sorting
@@ -388,24 +389,24 @@ The system implements **4 independent vulnerability scanners** that run concurre
 
 **Checks Performed:**
 
-| Check | Description |
-|-------|-------------|
-| Protocol Version | Detects weak TLS versions (TLSv1.0, TLSv1.1) |
-| Certificate Expiry | Checks if cert is expired or expires within 30 days |
-| Cipher Suite Strength | Detects weak ciphers (RC4, DES, 3DES, MD5, NULL, EXPORT, "anon") |
-| Certificate Verification | Validates trusted CA verification |
+| Check                    | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| Protocol Version         | Detects weak TLS versions (TLSv1.0, TLSv1.1)                     |
+| Certificate Expiry       | Checks if cert is expired or expires within 30 days              |
+| Cipher Suite Strength    | Detects weak ciphers (RC4, DES, 3DES, MD5, NULL, EXPORT, "anon") |
+| Certificate Verification | Validates trusted CA verification                                |
 
 **Vulnerabilities Detected:**
 
-| Vulnerability | Severity |
-|--------------|----------|
-| No HTTPS Encryption | high |
-| Weak TLS Version (1.0/1.1) | high |
-| Expired SSL Certificate | critical |
-| SSL Certificate Expiring Soon | medium |
-| Weak Cipher Suite | high |
-| SSL Certificate Verification Failed | high |
-| SSL Connection Failed | info |
+| Vulnerability                       | Severity |
+| ----------------------------------- | -------- |
+| No HTTPS Encryption                 | high     |
+| Weak TLS Version (1.0/1.1)          | high     |
+| Expired SSL Certificate             | critical |
+| SSL Certificate Expiring Soon       | medium   |
+| Weak Cipher Suite                   | high     |
+| SSL Certificate Verification Failed | high     |
+| SSL Connection Failed               | info     |
 
 **External APIs:** None (uses Python's `ssl` and `socket` libraries)
 
@@ -417,33 +418,33 @@ The system implements **4 independent vulnerability scanners** that run concurre
 
 **Checks Performed:**
 
-| Check | Description |
-|-------|-------------|
-| Missing Security Headers | Checks for absence of 6 critical headers |
-| Server Version Disclosure | Detects version numbers in Server header |
-| X-Powered-By Disclosure | Checks for technology stack in X-Powered-By |
-| CORS Misconfiguration | Verifies Access-Control-Allow-Origin |
+| Check                     | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| Missing Security Headers  | Checks for absence of 6 critical headers    |
+| Server Version Disclosure | Detects version numbers in Server header    |
+| X-Powered-By Disclosure   | Checks for technology stack in X-Powered-By |
+| CORS Misconfiguration     | Verifies Access-Control-Allow-Origin        |
 
 **Vulnerabilities Detected:**
 
 **Missing Security Headers:**
 
-| Header | Severity | Risk |
-|--------|----------|------|
-| Strict-Transport-Security (HSTS) | high | Browser may use insecure HTTP |
-| Content-Security-Policy | medium | XSS/injection risk |
-| X-Content-Type-Options | medium | MIME-sniffing XSS |
-| X-Frame-Options | medium | Clickjacking |
-| Referrer-Policy | low | URL leakage |
-| Permissions-Policy | low | Unrestricted browser features |
+| Header                           | Severity | Risk                          |
+| -------------------------------- | -------- | ----------------------------- |
+| Strict-Transport-Security (HSTS) | high     | Browser may use insecure HTTP |
+| Content-Security-Policy          | medium   | XSS/injection risk            |
+| X-Content-Type-Options           | medium   | MIME-sniffing XSS             |
+| X-Frame-Options                  | medium   | Clickjacking                  |
+| Referrer-Policy                  | low      | URL leakage                   |
+| Permissions-Policy               | low      | Unrestricted browser features |
 
 **Additional Findings:**
 
-| Vulnerability | Severity |
-|--------------|----------|
-| Server Version Disclosure | low |
-| Technology Stack Disclosure | low |
-| Permissive CORS Policy | medium |
+| Vulnerability               | Severity |
+| --------------------------- | -------- |
+| Server Version Disclosure   | low      |
+| Technology Stack Disclosure | low      |
+| Permissive CORS Policy      | medium   |
 
 **External APIs:** None (direct HTTP requests via `httpx`)
 
@@ -455,22 +456,24 @@ The system implements **4 independent vulnerability scanners** that run concurre
 
 **Checks Performed:**
 
-| Check | Description |
-|-------|-------------|
+| Check                    | Description                                  |
+| ------------------------ | -------------------------------------------- |
 | Sensitive File Detection | Attempts to access 22+ known sensitive paths |
-| Status Code Analysis | Treats 200, 301, 302, 403 as exposed |
-| Content Validation | Verifies 200 responses have >20 bytes |
-| 403 Handling | Reports "Path Exists But Forbidden" |
+| Status Code Analysis     | Treats 200, 301, 302, 403 as exposed         |
+| Content Validation       | Verifies 200 responses have >20 bytes        |
+| 403 Handling             | Reports "Path Exists But Forbidden"          |
 
 **Vulnerabilities Detected:**
 
 **Critical Severity:**
+
 - `/.env` - Environment configuration
 - `/.git/config`, `/.git/HEAD` - Git repository exposure
 - `/db.sql`, `/dump.sql` - Database dumps
 - `/.htpasswd` - Apache password file
 
 **High Severity:**
+
 - `/backup.zip`, `/backup.tar.gz` - Backup archives
 - `/phpmyadmin/` - phpMyAdmin
 - `/web.config` - IIS configuration
@@ -478,12 +481,14 @@ The system implements **4 independent vulnerability scanners** that run concurre
 - `/phpinfo.php`, `/info.php` - PHP info
 
 **Medium Severity:**
+
 - `/wp-admin/` - WordPress admin
 - `/admin/` - Admin interface
 - `/server-status`, `/server-info` - Apache status
 - `/.htaccess` - Apache config
 
 **Low Severity:**
+
 - `/.DS_Store` - macOS metadata
 - `/crossdomain.xml` - Flash policy
 
@@ -498,23 +503,25 @@ The system implements **4 independent vulnerability scanners** that run concurre
 **Detection Sources:**
 
 **From HTTP Headers:**
-| Header | Patterns Detected |
-|--------|-------------------|
-| Server | Apache, nginx, Microsoft IIS, LiteSpeed, Caddy |
-| X-Powered-By | PHP, ASP.NET, Express.js, Next.js, Django |
-| X-AspNet-Version | ASP.NET |
+
+| Header           | Patterns Detected                              |
+| ---------------- | ---------------------------------------------- |
+| Server           | Apache, nginx, Microsoft IIS, LiteSpeed, Caddy |
+| X-Powered-By     | PHP, ASP.NET, Express.js, Next.js, Django      |
+| X-AspNet-Version | ASP.NET                                        |
 
 **From HTML Body (first 50KB):**
+
 - WordPress (generator meta, /wp-content/, /wp-includes/)
 - Joomla, Drupal
 - jQuery, Bootstrap, React, Vue.js, Angular
 
 **External APIs:**
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| NIST NVD API | `https://services.nvd.nist.gov/rest/json/cves/2.0` | Query CVEs |
-| API Key | Optional (`NVD_API_KEY`) | Higher rate limits |
+| Service      | URL                                                  | Purpose            |
+| ------------ | ---------------------------------------------------- | ------------------ |
+| NIST NVD API | `https://services.nvd.nist.gov/rest/json/cves/2.0` | Query CVEs         |
+| API Key      | Optional (`NVD_API_KEY`)                           | Higher rate limits |
 
 ---
 
@@ -696,6 +703,7 @@ class AIReport(BaseModel):
 Start a new vulnerability scan.
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com"
@@ -703,6 +711,7 @@ Start a new vulnerability scan.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -716,6 +725,7 @@ Start a new vulnerability scan.
 Get paginated scan history.
 
 **Response:**
+
 ```json
 {
   "scans": [
@@ -743,6 +753,7 @@ Get paginated scan history.
 Get scan details and results.
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -773,6 +784,7 @@ Create new scan (called by frontend).
 **Headers:** `Authorization: Bearer <token>`
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com",
@@ -781,6 +793,7 @@ Create new scan (called by frontend).
 ```
 
 **Response:**
+
 ```json
 {
   "scan_id": "uuid-string",
@@ -788,7 +801,7 @@ Create new scan (called by frontend).
 }
 ```
 
-#### GET /api/scan/{scan_id}
+#### GET /api/scan/
 
 Get scan status and results.
 
@@ -801,6 +814,7 @@ Get user scan history.
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -844,6 +858,7 @@ SSRF_BLOCKED_HOSTS = {
 ### Consent Logging
 
 All scans are logged for GDPR compliance:
+
 - User ID
 - Target URL
 - IP address
@@ -855,37 +870,37 @@ All scans are logged for GDPR compliance:
 
 ### Frontend (NPM)
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `next` | 16.0.10 | React framework |
-| `react` | 19.2.0 | UI library |
-| `@clerk/nextjs` | 6.36.7 | Authentication |
-| `@radix-ui/react-*` | Various | UI components |
-| `@react-pdf/renderer` | 4.3.2 | PDF generation |
-| `recharts` | 2.15.4 | Charts |
-| `framer-motion` | 12.24.10 | Animations |
-| `zod` | 3.25.76 | Validation |
-| `lucide-react` | 0.454.0 | Icons |
-| `tailwindcss` | 4.1.9 | CSS |
-| `date-fns` | 4.1.0 | Date utilities |
-| `jose` | 6.1.3 | JWT handling |
-| `@neondatabase/serverless` | 1.0.2 | DB connection |
+| Package                      | Version  | Purpose         |
+| ---------------------------- | -------- | --------------- |
+| `next`                     | 16.0.10  | React framework |
+| `react`                    | 19.2.0   | UI library      |
+| `@clerk/nextjs`            | 6.36.7   | Authentication  |
+| `@radix-ui/react-*`        | Various  | UI components   |
+| `@react-pdf/renderer`      | 4.3.2    | PDF generation  |
+| `recharts`                 | 2.15.4   | Charts          |
+| `framer-motion`            | 12.24.10 | Animations      |
+| `zod`                      | 3.25.76  | Validation      |
+| `lucide-react`             | 0.454.0  | Icons           |
+| `tailwindcss`              | 4.1.9    | CSS             |
+| `date-fns`                 | 4.1.0    | Date utilities  |
+| `jose`                     | 6.1.3    | JWT handling    |
+| `@neondatabase/serverless` | 1.0.2    | DB connection   |
 
 ### Backend (Python)
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `fastapi` | 0.115.6 | Web framework |
-| `uvicorn` | 0.34.0 | ASGI server |
-| `asyncpg` | 0.30.0 | Async PostgreSQL |
-| `httpx` | 0.28.1 | HTTP client |
-| `pydantic` | 2.10.4 | Validation |
-| `pydantic-settings` | 2.7.1 | Settings |
-| `structlog` | 24.4.0 | Logging |
-| `groq` | 0.14.0 | Groq AI |
-| `openai` | 1.58.1 | OpenAI AI |
-| `reportlab` | 4.0.7 | PDF generation |
-| `python-jose` | 3.3.0 | JWT |
+| Package               | Version | Purpose          |
+| --------------------- | ------- | ---------------- |
+| `fastapi`           | 0.115.6 | Web framework    |
+| `uvicorn`           | 0.34.0  | ASGI server      |
+| `asyncpg`           | 0.30.0  | Async PostgreSQL |
+| `httpx`             | 0.28.1  | HTTP client      |
+| `pydantic`          | 2.10.4  | Validation       |
+| `pydantic-settings` | 2.7.1   | Settings         |
+| `structlog`         | 24.4.0  | Logging          |
+| `groq`              | 0.14.0  | Groq AI          |
+| `openai`            | 1.58.1  | OpenAI AI        |
+| `reportlab`         | 4.0.7   | PDF generation   |
+| `python-jose`       | 3.3.0   | JWT              |
 
 ---
 
@@ -1030,12 +1045,14 @@ LOG_LEVEL=INFO
 You need **3 terminal windows** to run the complete system:
 
 **Terminal 1 - Frontend:**
+
 ```bash
 npm run dev
 # Runs on http://localhost:3000
 ```
 
 **Terminal 2 - Backend API:**
+
 ```bash
 cd backend
 uvicorn app.main:app --reload --port 3001
@@ -1043,6 +1060,7 @@ uvicorn app.main:app --reload --port 3001
 ```
 
 **Terminal 3 - Worker:**
+
 ```bash
 cd backend
 python -m app.worker.worker
@@ -1059,12 +1077,14 @@ The `render.yaml` defines two services:
 ### Verification
 
 Check if worker is running:
+
 ```bash
 curl http://localhost:3001/api/health
 # {"status":"healthy","timestamp":"..."}
 ```
 
 Check database for queued scans:
+
 ```sql
 SELECT id, target_url, scan_status FROM scans 
 WHERE scan_status = 'queued' 
@@ -1075,13 +1095,13 @@ ORDER BY created_at DESC;
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Start Frontend | `npm run dev` |
-| Start Backend | `cd backend && uvicorn app.main:app --reload --port 3001` |
-| Start Worker | `cd backend && python -m app.worker.worker` |
-| Health Check | `curl http://localhost:3001/api/health` |
-| Run Migration | Copy `backend/migration.sql` to Neon SQL Editor |
+| Task           | Command                                                              |
+| -------------- | -------------------------------------------------------------------- |
+| Start Frontend | `npm run dev`                                                      |
+| Start Backend  | `cd backend && python-m uvicorn app.main:app --reload --port 3001` |
+| Start Worker   | `cd backend &&  python -m app.worker.worker`                       |
+| Health Check   | `curl http://localhost:3001/api/health`                            |
+| Run Migration  | Copy `backend/migration.sql` to Neon SQL Editor                    |
 
 ---
 

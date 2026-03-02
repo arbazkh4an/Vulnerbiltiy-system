@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState, useTransition, useMemo } from "react"
-// import { useUser, useClerk } from "@clerk/nextjs"
+import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -71,14 +71,14 @@ type FilterStatus = "all" | "completed" | "running" | "failed" | "pending"
 
 const ITEMS_PER_PAGE = 10
 
-const MOCK_USER = { fullName: "Local User", primaryEmailAddress: { emailAddress: "local@example.com" } }
-
 export default function DashboardPage() {
-  const user = MOCK_USER
-  const isLoaded = true
-  const isSignedIn = true
-  const signOut = () => router.push("/")
+  const { user, isLoaded, isSignedIn } = useUser()
+  const { signOut } = useClerk()
   const router = useRouter()
+  const handleSignOut = async () => {
+    await signOut()
+    router.push("/")
+  }
   const [targetUrl, setTargetUrl] = useState("")
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState("")
@@ -358,7 +358,7 @@ export default function DashboardPage() {
               <div className="hidden sm:block text-sm text-slate-400">
                 <span className="text-slate-300">{user.fullName || user.primaryEmailAddress?.emailAddress}</span>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-slate-400 hover:text-slate-100 hover:bg-slate-800">
+              <Button variant="ghost" size="sm" onClick={() => handleSignOut()} className="text-slate-400 hover:text-slate-100 hover:bg-slate-800">
                 <LogOut className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Logout</span>
               </Button>

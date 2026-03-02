@@ -8,7 +8,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-transparent to-transparent pointer-events-none" />
-      
+
       <div className="relative z-10 w-full max-w-md px-4">
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="flex items-center gap-2 mb-4">
@@ -20,7 +20,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl">
-          <SignUp 
+          <SignUp
             appearance={{
               elements: {
                 rootBox: "w-full",
@@ -47,7 +47,7 @@ export default function RegisterPage() {
             routing="path"
             path="/register"
             signInUrl="/login"
-            redirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
           />
         </div>
 

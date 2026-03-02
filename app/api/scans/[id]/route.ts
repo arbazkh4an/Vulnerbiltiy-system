@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-// import { auth } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { z } from "zod"
 
@@ -7,8 +7,10 @@ const scanIdSchema = z.string().uuid("Invalid scan ID format")
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Clerk disabled – no auth check for local dev
-    const userId = "local-user"
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     const { id: scanId } = await params
 
@@ -35,7 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         medium_count,
         low_count
       FROM scans
-      WHERE id = ${scanId}
+      WHERE id = ${scanId} AND user_id = ${userId}
     `
 
     if (scanResult.length === 0) {

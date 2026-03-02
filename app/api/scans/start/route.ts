@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-// import { auth } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { checkRateLimit, getClientIp, apiRateLimits } from "@/lib/rate-limit"
 import { z } from "zod"
@@ -87,8 +87,10 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // const { userId } = await auth()
-  const userId = "local-user"
+  const { userId } = await auth()
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   let body: unknown
   try {

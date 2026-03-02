@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-// import { auth } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { sql } from "@/lib/db"
 import { checkRateLimit, getClientIp, apiRateLimits } from "@/lib/rate-limit"
 import { z } from "zod"
@@ -21,8 +21,10 @@ export async function GET(request: Request) {
       )
     }
 
-    // Clerk disabled – hardcode userId for local dev
-    const userId = "local-user"
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     const { searchParams } = new URL(request.url)
     const limit = searchParams.get("limit") || "50"
@@ -44,6 +46,7 @@ export async function GET(request: Request) {
         low_count,
         created_at
       FROM scans
+      WHERE user_id = ${userId}
       ORDER BY created_at DESC
       LIMIT ${validatedParams.limit}
       OFFSET ${validatedParams.offset}

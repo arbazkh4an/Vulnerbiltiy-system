@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Shield } from "lucide-react"
 import { motion } from "framer-motion"
 import { ModeToggle } from "@/components/mode-toggle"
-// import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 export function SiteHeader() {
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -40,14 +40,22 @@ export function SiteHeader() {
                 </nav>
                 <div className="ml-auto w-auto flex items-center space-x-4">
                     <ModeToggle />
-                    <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                        Log in
-                    </Link>
-                    <Link href="/register">
-                        <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6">
-                            Get Started
-                        </Button>
-                    </Link>
+                    <SignedOut>
+                        <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+                            Log in
+                        </Link>
+                        <Link href="/register">
+                            <Button className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6">
+                                Get Started
+                            </Button>
+                        </Link>
+                    </SignedOut>
+                    <SignedIn>
+                        <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+                            Dashboard
+                        </Link>
+                        <UserButton afterSignOutUrl="/" />
+                    </SignedIn>
                 </div>
             </div>
         </motion.header>

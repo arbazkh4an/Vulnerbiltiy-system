@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     # JWT (for validating frontend tokens)
     JWT_SECRET: str = Field(default="", description="JWT secret for token validation")
     JWT_ALGORITHM: str = Field(default="HS256", description="JWT algorithm")
+    CLERK_JWKS_URL: str = Field(default="", description="Clerk JWKS endpoint URL")
 
     model_config = {
         "env_file": ".env",
