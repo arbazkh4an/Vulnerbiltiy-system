@@ -5,6 +5,11 @@ import { useRouter, useParams } from "next/navigation"
 import { AlertTriangle, CheckCircle, Shield, ArrowLeft, Loader2, PlaySquare, X, Activity, Target } from "lucide-react"
 import Link from "next/link"
 import type { Vulnerability, Scan } from "@/lib/types"
+import dynamic from "next/dynamic"
+
+const DownloadReportButton = dynamic(() => import("@/components/pdf/DownloadReportButton"), {
+  ssr: false,
+})
 
 const MOCK_USER = { fullName: "Local User" }
 
@@ -189,17 +194,20 @@ export default function HackerScanDashboard() {
               <div className="flex items-center justify-between mb-8">
                 <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Live Scan Results</h1>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                  {!isRunning && scan && (
+                    <DownloadReportButton scan={scan} vulnerabilities={vulnerabilities} />
+                  )}
                   {isRunning ? (
-                    <>
+                    <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                       <span className="text-[10px] uppercase font-bold text-emerald-500 tracking-widest">Scanning Active</span>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-slate-500"></div>
                       <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Scan Completed</span>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
