@@ -1,0 +1,10 @@
+Run each command in its own terminal, from the project root (D:\PROJECTS\Vulnerbiltiy-system).
+
+Terminal 1 - Frontend (Next.js):
+npm run dev
+
+Terminal 2 - Backend (FastAPI):
+cd backend && venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 5000
+
+Terminal 3 - Worker (background scan poller):
+cd backend && venv\Scripts\python.exe -m app.worker.worker

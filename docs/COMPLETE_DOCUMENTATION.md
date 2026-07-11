@@ -1106,3 +1106,8 @@ ORDER BY created_at DESC;
 ---
 
 *Generated on 2026-03-01*
+cd backend
+./venv/Scripts/uvicorn app.main:app --port 5000 --reload
+
+# Worker (separate terminal):
+./venv/Scripts/python -m app.worker.worker

@@ -56,3 +56,6 @@ backend/ai_model/saved_models/*.pkl
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Claude workspace files
+.claude/
